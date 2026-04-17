@@ -1,368 +1,182 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-100">
-    <!-- NAVBAR -->
-    <Navbar />
+  <div class="min-h-screen flex flex-col bg-[#EEF2F7] dashboard-scope relative">
+    
+    <div class="relative z-50">
+      <Navbar />
+    </div>
 
-    <!-- MAIN -->
-    <main class="flex-1 py-8 px-6">
-      <!-- HERO / Banner -->
-      <section class="max-w-6xl mx-auto mb-6">
-        <div class="bg-[#41a6c2] rounded-2xl p-8 md:p-12 text-center shadow">
-          <h1 class="text-xl md:text-2xl font-semibold text-white">
-            Gambar atau iklan mengenai lazuardy
-          </h1>
-        </div>
-      </section>
+    <div class="lz-main-wrapper flex flex-col min-h-screen">
+      
+      <main class="flex-1 px-6 md:px-12 max-w-[1440px] w-full mx-auto font-body py-8">
+        
+        <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div class="space-y-1">
+            <p class="text-xs font-bold tracking-[1px] text-[#1D9E75] uppercase font-body">Overview Dashboard</p>
+            <h1 class="text-4xl font-extrabold text-[#1a2332] tracking-tight font-heading">
+              Dashboard
+            </h1>
+          </div>
+          <div class="hidden md:flex items-center gap-3 bg-white px-5 py-3 rounded-xl border border-black/5 shadow-sm">
+            <svg class="w-5 h-5 text-[#5a6370]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span class="text-sm font-semibold text-[#5a6370]">Terakhir diperbarui: {{ new Date().toLocaleDateString('id-ID') }}</span>
+          </div>
+        </header>
 
-      <!-- CONTENT GRID -->
-      <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6">
-        <!-- ===== KIRI: Paket, Progress, Jadwal ===== -->
-        <div class="w-full lg:flex-[2] space-y-6">
-          <!-- Paket Belajar -->
-          <section class="bg-white rounded-2xl shadow p-6">
-            <h2 class="text-xl font-semibold text-[#41a6c2] mb-4">
-              Paket Belajar
-            </h2>
-            <!-- Loading State -->
-            <div v-if="isLoadingDashboard" class="text-center py-8">
-              <div
-                class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#41a6c2] border-t-transparent"
-              ></div>
-              <p class="mt-2 text-gray-500 text-sm">Memuat data...</p>
-            </div>
-
-            <!-- Paket Aktif -->
-            <div
-              v-else-if="paketAktif"
-              class="border rounded-xl p-5 shadow-sm bg-gradient-to-br from-teal-50 to-blue-50"
-            >
-              <div class="flex items-start justify-between mb-3">
-                <div class="flex-1">
-                  <h3 class="font-bold text-gray-800 text-lg">
-                    {{ paketAktif.nama }}
-                  </h3>
-                  <p
-                    class="text-sm text-gray-600 mt-1"
-                    v-if="paketAktif.berlakuSampai"
-                  >
-                    Berlaku s/d
-                    <span class="font-semibold text-gray-800">{{
-                      formatDate(paketAktif.berlakuSampai)
-                    }}</span>
-                  </p>
-                </div>
-                <span
-                  class="px-3 py-1 text-xs font-semibold rounded-full bg-teal-500 text-white"
-                >
-                  Aktif
-                </span>
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          
+          <div class="xl:col-span-8 space-y-6">
+            
+            <section v-if="!isLoadingDashboard" class="welcome-banner h-56 md:h-48">
+              <div class="welcome-bubble-1"></div>
+              <div class="welcome-bubble-2"></div>
+              <div class="relative z-10 space-y-2">
+                <div class="text-xs font-bold uppercase tracking-[1px] text-white/70">Selamat Datang Kembali</div>
+                <h2 class="text-3xl font-black text-white font-heading">{{ user?.name || 'Siswa' }}</h2>
+                <p class="text-sm text-white/90 font-medium">Semangat belajar hari ini!</p>
               </div>
-              <div class="bg-white rounded-lg p-3 mt-3">
-                <p class="text-sm text-gray-600 mb-1">Sisa Pertemuan</p>
-                <div class="flex items-baseline gap-2">
-                  <span class="text-2xl font-bold text-[#41a6c2]">{{
-                    sisaSesi
-                  }}</span>
-                  <span class="text-gray-500">/ {{ totalSesi }} sesi</span>
-                </div>
+              <div class="date-chip">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                {{ new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }}
               </div>
-            </div>
+            </section>
 
-            <!-- Belum Ada Paket Approved -->
-            <div v-else class="text-center py-8">
-              <div
-                class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-4"
-              >
-                <p class="text-yellow-800 font-medium mb-2">
-                  ⚠️ Anda belum membeli paket belajar
-                </p>
-                <p class="text-sm text-yellow-700">
-                  Silakan beli paket terlebih dahulu untuk dapat booking jadwal
-                  tutor
-                </p>
-              </div>
-              <button
-                @click="router.push('/packages')"
-                class="bg-[#41a6c2] text-white px-8 py-3 rounded-lg hover:bg-[#3592ab] font-semibold transition-all transform hover:scale-105"
-              >
-                Pilih Paket Belajar
-              </button>
-            </div>
-          </section>
-
-          <!-- Progress Belajar -->
-          <section class="bg-white rounded-2xl shadow p-6">
-            <h2 class="text-xl font-semibold text-[#41a6c2] mb-4">
-              Progress Belajar
-            </h2>
-
-            <!-- Loading State -->
-            <div v-if="isLoadingDashboard" class="text-center py-8">
-              <div
-                class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#41a6c2] border-t-transparent"
-              ></div>
-            </div>
-
-            <!-- Progress Card (New Design) -->
-            <div
-              v-else-if="progress.totalSesi > 0"
-              class="border rounded-xl p-5 bg-gradient-to-br from-blue-50 to-teal-50 shadow-sm"
-            >
-              <!-- Header: Paket - Mapel (Tutor) -->
-              <div class="mb-4 pb-3 border-b border-gray-200">
-                <h3 class="font-bold text-gray-800 text-lg">
-                  {{ progress.program }} - {{ progress.mapel }}
-                </h3>
-                <p class="text-sm text-gray-600 mt-1" v-if="progress.tutor">
-                  Tutor: <span class="font-semibold">{{ progress.tutor }}</span>
-                </p>
-              </div>
-
-              <!-- Tutor Info & Schedule -->
-              <div class="bg-white rounded-lg p-4 mb-4 space-y-2">
-                <div class="flex items-start gap-3">
-                  <div class="flex-1">
-                    <!-- Total Booking (1 booking = 4 pertemuan) -->
-                    <p class="text-sm text-gray-600">
-                      Total Booking:
-                      <span class="font-semibold text-gray-800">
-                        {{ Math.ceil(progress.totalSesi / 4) }} kali
-                      </span>
-                      <span class="text-xs text-gray-500">
-                        ({{ progress.totalSesi }} pertemuan)</span
-                      >
-                    </p>
-
-                    <!-- Jadwal Berikutnya -->
-                    <p class="text-sm text-gray-600 mt-2">
-                      📅 Jadwal berikutnya:
-                      <span class="font-medium text-gray-800">{{
-                        progress.jadwalBerikut
-                      }}</span>
-                    </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              <div class="hifi-card p-6 flex flex-col justify-between">
+                <div class="flex justify-between items-start">
+                  <div class="stat-icon-bg bg-[#E1F5EE]">
+                    <svg class="w-5 h-5 text-[#1D9E75]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                   </div>
+                  <span v-if="paketAktif" class="badge-hifi badge-active">AKTIF</span>
+                </div>
+                <div class="mt-5">
+                  <div class="text-xs font-bold text-[#5a6370] uppercase">Paket Saat Ini</div>
+                  <div class="text-base font-extrabold text-[#1a2332] font-heading line-clamp-1 mt-1">{{ paketAktif?.nama || 'Belum Ada Paket' }}</div>
+                </div>
+                <hr class="my-4 border-black/5" />
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-[#5a6370] font-medium">Sisa Pertemuan</span>
+                  <span class="text-xl font-black text-[#0C447C] font-heading">{{ sisaSesi }} <span class="text-xs font-normal text-[#9ba3ab]">/ {{ totalSesi }}</span></span>
                 </div>
               </div>
 
-              <!-- Progress Bar -->
-              <div class="bg-white rounded-lg p-4">
-                <p class="text-sm font-medium text-gray-700 mb-2">
-                  Sisa Pertemuan
-                </p>
-                <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
-                  <div
-                    class="bg-gradient-to-r from-teal-500 to-blue-500 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                    :style="{ width: progressPercent + '%' }"
-                  >
-                    <span
-                      v-if="progressPercent > 10"
-                      class="text-xs text-white font-bold"
-                    >
-                      {{ Math.round(progressPercent) }}%
-                    </span>
+              <div class="hifi-card p-6">
+                <div class="flex justify-between items-start mb-5">
+                  <div class="stat-icon-bg bg-[#FAEEDA]">
+                    <svg class="w-5 h-5 text-[#EF9F27]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                   </div>
+                  <span class="text-2xl font-black text-[#1D9E75] font-heading">{{ Math.round(progressPercent) }}%</span>
                 </div>
-                <div class="flex justify-between items-center text-sm">
-                  <span class="text-gray-600">
-                    <span class="font-bold text-[#41a6c2]">{{
-                      progress.sesiSelesai
-                    }}</span>
-                    / {{ progress.totalSesi }} pertemuan selesai
-                  </span>
-                  <span class="text-xs text-gray-500">
-                    Sisa
-                    {{ progress.totalSesi - progress.sesiSelesai }} pertemuan
-                  </span>
+                <div class="text-xs font-bold text-[#5a6370] uppercase">Pencapaian</div>
+                <div class="text-base font-bold text-[#1a2332] font-heading mb-4 mt-1 line-clamp-1">{{ progress.mapel || 'Progress Belajar' }}</div>
+                <div class="h-2 w-full bg-[#EEF2F7] rounded-full overflow-hidden">
+                  <div class="h-full bg-[#1D9E75] rounded-full" :style="{ width: progressPercent + '%' }"></div>
                 </div>
               </div>
-            </div>
 
-            <!-- Empty State -->
-            <div v-else class="text-center py-8">
-              <div class="bg-gray-50 rounded-lg p-6">
-                <p class="text-gray-500">📊 Belum ada progress belajar</p>
-                <p class="text-xs text-gray-400 mt-1">
-                  Progress akan muncul setelah tutor menyimpan laporan sesi
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <!-- Jadwal Belajar -->
-          <section class="bg-white rounded-2xl shadow p-6">
-            <h2 class="text-xl font-semibold text-[#41a6c2] mb-3">
-              Jadwal Belajar
-            </h2>
-
-            <div v-if="isLoadingDashboard" class="text-center py-8">
-              <div
-                class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#41a6c2] border-t-transparent"
-              ></div>
-            </div>
-
-            <div
-              v-else-if="jadwalList.length > 0"
-              class="text-gray-600 text-sm space-y-2"
-            >
-              <div
-                v-for="(jadwal, index) in jadwalList"
-                :key="index"
-                class="border rounded-lg p-3 flex justify-between hover:shadow-md transition"
-              >
-                <span class="font-medium">{{ jadwal.matkul }}</span>
-                <span class="text-gray-500">{{ jadwal.waktu }}</span>
+              <div class="hifi-card p-6 flex flex-col justify-between">
+                <div class="stat-icon-bg bg-[#E6F1FB] mb-5">
+                  <svg class="w-5 h-5 text-[#185FA5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                <div class="text-xs font-bold text-[#5a6370] uppercase">Jadwal Mendatang</div>
+                <div class="text-base font-extrabold text-[#1a2332] font-heading mt-1">{{ progress.jadwalBerikut !== 'Belum ada jadwal' ? 'Tersedia' : 'Belum Ada' }}</div>
+                <div class="mt-4">
+                   <button @click="router.push('/student/schedule')" class="text-sm font-bold text-[#185FA5] hover:underline">+ Atur jadwal &rarr;</button>
+                </div>
               </div>
             </div>
 
-            <div v-else class="text-center py-8 text-gray-500">
-              <p>Belum ada jadwal belajar</p>
-            </div>
-          </section>
-        </div>
-
-        <!-- ===== KANAN: Tutor Rekomendasi (scroll terpisah) ===== -->
-        <div class="w-full lg:flex-1">
-          <section
-            class="bg-white rounded-2xl shadow p-6 lg:h-[calc(100vh-120px)] lg:sticky lg:top-24 flex flex-col"
-          >
-            <h2 class="text-xl font-semibold text-[#41a6c2] mb-4">
-              Rekomendasi Tutor
-            </h2>
-
-            <div
-              v-if="isLoadingTutors"
-              class="flex-1 flex items-center justify-center"
-            >
-              <div class="text-center py-8">
-                <div
-                  class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#41a6c2] border-t-transparent"
-                ></div>
-                <p class="mt-2 text-gray-500 text-sm">Memuat tutor...</p>
+            <section class="hifi-card overflow-hidden">
+              <div class="px-6 py-5 border-b border-black/5 flex justify-between items-center">
+                <h3 class="text-base font-black text-[#1a2332] font-heading uppercase tracking-wider">Jadwal Mendatang</h3>
+                <button @click="router.push('/student/schedule')" class="text-sm font-bold text-[#0C447C]">Lihat semua &rarr;</button>
               </div>
-            </div>
+              
+              <div v-if="isLoadingDashboard" class="p-12 flex justify-center">
+                <div class="animate-spin rounded-full h-10 w-10 border-2 border-[#1D9E75] border-t-transparent"></div>
+              </div>
 
-            <div
-              v-else-if="tutors.length > 0"
-              class="flex-1 overflow-y-auto mb-4 space-y-4"
-            >
-              <div
-                v-for="tutor in tutors"
-                :key="tutor.id"
-                class="border rounded-xl p-5 shadow-sm hover:shadow-lg transition-shadow bg-white"
-              >
-                <!-- Header: Foto + Nama -->
-                <div class="flex items-start gap-4 mb-4">
-                  <img
-                    :src="tutor.photo"
-                    :alt="tutor.name"
-                    class="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                    @error="handleTutorPhotoError"
-                  />
-                  <div class="flex-1">
-                    <h3
-                      @click="goToTutorDetail(tutor)"
-                      class="font-bold text-gray-900 text-lg cursor-pointer hover:text-[#41a6c2] transition"
-                    >
-                      {{ tutor.name }}
-                    </h3>
-                    <p class="text-sm text-gray-600 mt-0.5">
-                      {{ tutor.keahlian || tutor.subject }}
-                    </p>
+              <div v-else-if="jadwalList.length > 0" class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div v-for="(jadwal, index) in jadwalList" :key="index" 
+                     class="p-5 rounded-xl border border-black/5 hover:border-[#1D9E75]/30 hover:bg-[#EEF2F7]/50 transition-all flex items-center gap-5">
+                  <div class="w-14 h-14 rounded-xl bg-[#F4F7FB] flex flex-col items-center justify-center shrink-0 border border-black/5">
+                    <span class="text-xs font-black text-[#5a6370] uppercase">{{ jadwal.waktu.split(',')[0].substring(0,3) }}</span>
+                    <span class="text-xl font-black text-[#1a2332] leading-none mt-1">{{ jadwal.waktu.split(',')[1]?.trim().match(/\d+/)?.[0] || '—' }}</span>
                   </div>
-                </div>
-
-                <!-- Rating & Stats -->
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                  <!-- Rating -->
-                  <div class="flex items-center gap-2">
-                    <div class="flex items-center gap-1">
-                      <span class="text-yellow-500">⭐</span>
-                      <span class="font-semibold text-gray-800">{{
-                        tutor.rating.toFixed(1)
-                      }}</span>
+                  <div class="min-w-0">
+                    <div class="text-sm font-bold text-[#1a2332] truncate">{{ jadwal.matkul }}</div>
+                    <div class="text-xs text-[#5a6370] mt-1 flex items-center gap-1.5">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      {{ jadwal.waktu.split(',')[1] || jadwal.waktu }}
                     </div>
-                    <span class="text-xs text-gray-500"
-                      >({{ tutor.totalReviews }} ulasan)</span
-                    >
-                  </div>
-
-                  <!-- Total Siswa -->
-                  <div class="flex items-center gap-2 text-gray-700">
-                    <User class="w-4 h-4 text-[#41a6c2]" />
-                    <span class="text-sm">{{ tutor.totalStudents }} siswa</span>
-                  </div>
-
-                  <!-- Total Sesi -->
-                  <div class="flex items-center gap-2 text-gray-700">
-                    <ChartColumn class="w-4 h-4 text-[#41a6c2]" />
-                    <span class="text-sm">{{ tutor.totalSessions }} sesi</span>
-                  </div>
-
-                  <!-- Online/Offline -->
-                  <div class="flex items-center gap-2 text-gray-700">
-                    <Globe class="w-4 h-4 text-[#41a6c2]" />
-                    <span class="text-sm text-capitalize">{{
-                      formatCourseMode(tutor.courseMode)
-                    }}</span>
                   </div>
                 </div>
-
-                <!-- Latest Review -->
-                <div
-                  v-if="tutor.latestReview"
-                  class="bg-gray-50 rounded-lg p-3 mb-4"
-                >
-                  <p class="text-xs text-gray-600 line-clamp-2 italic">
-                    "{{ tutor.latestReview.review_text }}"
-                  </p>
-                  <p class="text-xs text-gray-500 mt-1">
-                    - {{ tutor.latestReview.student_name }}
-                  </p>
-                </div>
-
-                <!-- Button Detail -->
-                <button
-                  @click="goToTutorDetail(tutor)"
-                  class="w-full bg-[#41a6c2] text-white py-2.5 rounded-lg hover:bg-[#3592ab] transition font-medium text-sm"
-                >
-                  Lihat Detail
-                </button>
               </div>
-            </div>
 
-            <div v-else class="flex-1 flex items-center justify-center">
-              <p class="text-gray-500">Belum ada rekomendasi tutor</p>
-            </div>
+              <div v-else class="p-16 flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-[#EEF2F7] rounded-2xl flex items-center justify-center mb-5">
+                  <svg class="w-8 h-8 text-[#9ba3ab]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                <p class="text-base font-bold text-[#5a6370] font-heading">Jadwal masih kosong</p>
+                <p class="text-sm text-[#9ba3ab] mb-6 mt-1">Jadwalkan sesi bareng tutor favoritmu</p>
+                <button @click="router.push('/tutors')" class="px-8 py-3 bg-[#0C447C] text-white text-sm font-bold rounded-xl hover:bg-[#042C53] transition-colors">Cari Tutor</button>
+              </div>
+            </section>
+          </div>
 
-            <!-- Tombol FULL - Fixed di bawah -->
-            <div class="mt-auto pt-4 border-t">
-              <RouterLink
-                to="/tutors"
-                class="w-full inline-flex justify-center items-center rounded-xl bg-[#41a6c2] text-white font-semibold py-3 hover:bg-[#3592ab] transition-colors"
-              >
-                Selengkapnya
-              </RouterLink>
-            </div>
-          </section>
+          <div class="xl:col-span-4">
+            <section class="hifi-card flex flex-col h-full xl:max-h-[calc(100vh-120px)] xl:sticky xl:top-28">
+              <div class="p-6 border-b border-black/5">
+                <h3 class="text-base font-black text-[#1a2332] font-heading uppercase tracking-wider">Rekomendasi Tutor</h3>
+                <p class="text-xs text-[#5a6370] mt-1 font-medium">Tutor terbaik untukmu</p>
+              </div>
+
+              <div v-if="isLoadingTutors" class="flex-1 flex items-center justify-center p-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-2 border-[#1D9E75] border-t-transparent"></div>
+              </div>
+
+              <div v-else-if="tutors.length > 0" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                <div v-for="tutor in tutors" :key="tutor.id" 
+                     class="p-4 bg-white border border-black/5 rounded-xl hover:border-[#1D9E75]/30 hover:shadow-sm transition-all cursor-pointer flex items-center gap-4"
+                     @click="goToTutorDetail(tutor)">
+                  
+                  <div class="relative shrink-0">
+                    <img :src="tutor.photo" :alt="tutor.name" @error="(e) => handleTutorPhotoError(e, tutor.name)" class="w-12 h-12 rounded-xl object-cover bg-slate-100 shadow-sm" />
+                  </div>
+                  
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-black text-[#1a2332] truncate font-heading">{{ tutor.name }}</div>
+                    <div class="text-xs text-[#5a6370] truncate mt-0.5">{{ tutor.keahlian || tutor.subject }}</div>
+                  </div>
+                  
+                  <span class="px-2.5 py-1 bg-[#E1F5EE] text-[#0F6E56] text-[10px] font-black rounded-md shrink-0">ONLINE</span>
+                </div>
+              </div>
+
+              <div v-else class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                <p class="text-sm font-medium text-[#9ba3ab]">Belum ada rekomendasi tutor.</p>
+              </div>
+
+              <div class="p-5 border-t border-black/5 mt-auto">
+                <RouterLink to="/tutors" class="flex items-center justify-center w-full py-3 bg-[#0C447C] text-white text-sm font-black rounded-xl hover:bg-[#042C53] transition-colors uppercase tracking-widest">
+                  Semua Tutor &rarr;
+                </RouterLink>
+              </div>
+            </section>
+          </div>
+
         </div>
-      </div>
-    </main>
+      </main>
 
-    <SidebarLeft v-if="showStandaloneSidebars" />
-    <SidebarRight v-if="showStandaloneSidebars" />
-
-    <!-- FOOTER -->
-    <FooterStudent />
+      <FooterStudent class="mt-auto border-t border-black/5 bg-white shrink-0" />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRouter, RouterLink } from "vue-router";
-import { User, ChartColumn, Globe } from "lucide-vue-next";
 import Navbar from "@/components/layout/navbar.vue";
-import SidebarLeft from "@/components/layout/sidebar-left.vue";
-import SidebarRight from "@/components/layout/sidebar-right.vue";
 import FooterStudent from "@/components/layout/footer.vue";
 import { getMe } from "@/services/authService.js";
 import {
@@ -373,26 +187,9 @@ import {
 const user = ref(null);
 const isLoadingDashboard = ref(false);
 const isLoadingTutors = ref(false);
-
-const showStandaloneSidebars = false;
-
 const router = useRouter();
 
-// Scroll state untuk navbar
-const isScrolled = ref(false);
-
-// Handle scroll event
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 20;
-};
-
-const faqBlock = ref(null);
-const faqVisible = ref(false);
-let observer;
-
-// State untuk data dari backend
 const paketAktif = ref(null);
-
 const progress = ref({
   program: "",
   mapel: "",
@@ -403,13 +200,9 @@ const progress = ref({
   updatedAt: "",
 });
 
-// Jadwal Belajar
 const jadwalList = ref([]);
-
-// Rekomendasi Tutor
 const tutors = ref([]);
 
-// ==== COMPUTED & HELPERS ====
 const totalSesi = computed(() => paketAktif?.value?.totalSesi ?? 0);
 const sisaSesi = computed(() => {
   if (!paketAktif.value) return 0;
@@ -423,74 +216,48 @@ const progressPercent = computed(() => {
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";
-
   try {
     const d = new Date(dateStr);
     if (!Number.isNaN(d.getTime())) {
       return d.toLocaleDateString("id-ID", {
         day: "2-digit",
-        month: "long",
+        month: "short",
         year: "numeric",
       });
     }
-  } catch (_) {
-    // ignore
-  }
-
+  } catch (_) {}
   return String(dateStr);
-}
-
-// Helper link WhatsApp
-function waLink(number) {
-  if (!number) return "#";
-  const n = number.replace(/[^\d+]/g, "");
-  const msisdn = n.startsWith("+") ? n.slice(1) : n;
-  return `https://wa.me/${msisdn}`;
 }
 
 function formatJadwal(dateStr, timeStr) {
   if (!dateStr && !timeStr) return "-";
-
   let tgl = dateStr;
   try {
     const d = new Date(dateStr);
     if (!Number.isNaN(d.getTime())) {
       tgl = d.toLocaleDateString("id-ID", {
-        weekday: "long",
+        weekday: "short",
         day: "2-digit",
         month: "short",
       });
     }
-  } catch (_) {
-    // kalau gagal parse, pakai string aslinya
-  }
-
+  } catch (_) {}
   return [tgl, timeStr].filter(Boolean).join(", ");
 }
 
-// ==== LOAD DATA DARI BACKEND ====
 async function loadDashboard() {
   try {
     isLoadingDashboard.value = true;
-
-    // 1. Ambil user yang sedang login
     const meRes = await getMe();
     user.value = meRes.user;
 
-    // 2. Ambil data dashboard student -> /api/dashboard/student
     const dashRes = await getStudentDashboard();
     const data = dashRes.data || dashRes;
 
-    // ====== PAKET BELAJAR & PROGRESS ======
     const packages = data.packages || [];
-
     if (packages.length > 0) {
       const pkg = packages[0];
-
-      // Hitung total pertemuan dari package (24 atau 48 sesi)
       const totalPertemuan = pkg.package_session ?? 0;
-
-      // Hitung sesi selesai dari remaining_session
       const sisaPertemuan = pkg.remaining_session ?? totalPertemuan;
       const pertemuanSelesai = totalPertemuan - sisaPertemuan;
 
@@ -498,7 +265,7 @@ async function loadDashboard() {
         nama: pkg.package_name || "Paket Belajar",
         totalSesi: totalPertemuan,
         sesiTerpakai: pertemuanSelesai,
-        berlakuSampai: pkg.end_date || null, // Deadline paket
+        berlakuSampai: pkg.end_date || null,
       };
 
       progress.value.program = pkg.package_name || "Paket Belajar";
@@ -506,19 +273,9 @@ async function loadDashboard() {
       progress.value.tutor = pkg.tutor_name || "-";
       progress.value.totalSesi = totalPertemuan;
       progress.value.sesiSelesai = pertemuanSelesai;
-    } else {
-      // Belum ada paket yang approved
-      paketAktif.value = null;
-      progress.value.totalSesi = 0;
-      progress.value.sesiSelesai = 0;
-      progress.value.program = "";
-      progress.value.mapel = "";
-      progress.value.tutor = "";
     }
 
-    // ====== JADWAL BELAJAR ======
     const upcoming = data.upcoming_schedules || [];
-
     jadwalList.value = upcoming.map((js) => ({
       matkul: js.subject_name || "-",
       waktu: formatJadwal(js.date, js.schedule_time),
@@ -526,22 +283,10 @@ async function loadDashboard() {
 
     if (upcoming.length > 0) {
       const first = upcoming[0];
-      progress.value.jadwalBerikut = formatJadwal(
-        first.date,
-        first.schedule_time
-      );
-    } else {
-      progress.value.jadwalBerikut = "Belum ada jadwal";
+      progress.value.jadwalBerikut = formatJadwal(first.date, first.schedule_time);
     }
   } catch (err) {
     console.error("Gagal load dashboard:", err);
-
-    if (
-      err.message?.toLowerCase().includes("unauthenticated") ||
-      err.message?.includes("401")
-    ) {
-      router.push({ name: "login" });
-    }
   } finally {
     isLoadingDashboard.value = false;
   }
@@ -550,35 +295,42 @@ async function loadDashboard() {
 async function loadRecommendedTutors() {
   try {
     isLoadingTutors.value = true;
-
     const recRes = await getRecommendedTutors(1);
     const recData = recRes.data || recRes;
 
-    tutors.value = (recData || []).map((t) => ({
-      id: t.tutor_id,
-      name: t.tutor_name,
-      keahlian:
-        t.keahlian ||
-        (t.subjects || []).map((s) => s.subject_name).join(", ") ||
-        "-",
-      subject: (t.subjects || []).map((s) => s.subject_name).join(", ") || "-",
-      rating: t.rating ?? 0,
-      totalReviews: t.total_reviews ?? 0,
-      totalStudents: t.total_students ?? 0,
-      totalSessions: t.total_sessions ?? 0,
-      courseMode: t.course_mode || "online",
-      photo:
-        t.tutor_photo && t.tutor_photo !== "default"
-          ? `http://localhost:8000/storage/${t.tutor_photo}`
-          : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              t.tutor_name || "Tutor"
-            )}&size=200&background=41a6c2&color=fff`,
-      whatsapp: t.telephone_number || "",
-      bio: t.description || "",
-      latestReview: t.latest_review || null,
-      education: t.education || "",
-      price: t.price || 0,
-    }));
+    console.log("Raw tutor data from backend:", recData);
+
+    tutors.value = (recData || []).map((t) => {
+      const fallbackName = t.tutor_name || t.name || "Tutor";
+
+      let photoUrl;
+      if (t.tutor_photo && t.tutor_photo !== "default" && t.tutor_photo !== null) {
+        photoUrl = `http://localhost:8000/storage/${t.tutor_photo}`;
+      } else {
+        photoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName)}&size=200&background=0C447C&color=fff&bold=true`;
+      }
+
+      console.log(`Tutor ${fallbackName} photo:`, t.tutor_photo, "=>", photoUrl);
+
+      return {
+        id: t.tutor_id || t.id,
+        name: fallbackName,
+        keahlian: t.keahlian || (t.subjects || []).map((s) => s.subject_name).join(", ") || "Umum",
+        subject: (t.subjects || []).map((s) => s.subject_name).join(", "),
+        rating: t.rating ?? 0,
+        totalReviews: t.total_reviews ?? 0,
+        totalStudents: t.total_students ?? 0,
+        totalSessions: t.total_sessions ?? 0,
+        courseMode: t.course_mode || "online",
+        photo: photoUrl,
+        whatsapp: t.telephone_number || "",
+        bio: t.description || "",
+        education: t.education || "",
+        price: t.price || 0,
+      };
+    });
+
+    console.log("Mapped tutors:", tutors.value);
   } catch (err) {
     console.error("Gagal load tutor rekomendasi:", err);
   } finally {
@@ -586,30 +338,12 @@ async function loadRecommendedTutors() {
   }
 }
 
-// Helper untuk format course mode
-function formatCourseMode(mode) {
-  if (!mode) return "Online";
-
-  const modes = {
-    online: "Online",
-    offline: "Offline",
-    both: "Online & Offline",
-    hybrid: "Online & Offline",
-  };
-
-  return modes[mode.toLowerCase()] || mode;
-}
-
-// Handle tutor photo error
-function handleTutorPhotoError(event) {
-  event.target.src =
-    "https://ui-avatars.com/api/?name=Tutor&size=200&background=41a6c2&color=fff";
+function handleTutorPhotoError(event, tutorName = "Tutor") {
+  console.log("Image load error for tutor:", tutorName);
+  event.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(tutorName)}&size=200&background=0C447C&color=fff&bold=true`;
 }
 
 function goToTutorDetail(tutor) {
-  console.log("Navigating to tutor detail with data:", tutor);
-  console.log("Tutor ID being sent:", tutor.id);
-
   router.push({
     path: "/tutors/tutor-detail",
     query: {
@@ -631,32 +365,123 @@ function goToTutorDetail(tutor) {
   });
 }
 
-// ==== LIFECYCLE HOOKS ====
 onMounted(() => {
-  // Scroll listener untuk navbar
-  window.addEventListener("scroll", handleScroll);
-
-  // Intersection observer untuk FAQ
-  observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          faqVisible.value = true;
-          observer?.disconnect();
-        }
-      });
-    },
-    { threshold: 0.2 }
-  );
-  if (faqBlock.value) observer.observe(faqBlock.value);
-
-  // Load data dari backend
   loadDashboard();
   loadRecommendedTutors();
 });
-
-onBeforeUnmount(() => {
-  window.removeEventListener("scroll", handleScroll);
-  observer?.disconnect();
-});
 </script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Sans:wght@400;500;700&display=swap');
+
+.dashboard-scope {
+  --navy: #0C447C;
+  --teal: #1D9E75;
+  --amber: #EF9F27;
+}
+
+.font-heading { font-family: 'Nunito', sans-serif; }
+.font-body { font-family: 'DM Sans', sans-serif; }
+
+/* ANIMASI SHIFT WRAPPER (Target akhir disesuaikan ke 88px) */
+@keyframes lz-content-shift {
+  0% {
+    margin-left: 260px;
+  }
+  100% {
+    margin-left: 88px; 
+  }
+}
+
+.lz-main-wrapper {
+  animation: lz-content-shift linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0px 60px;
+}
+
+@supports not (animation-timeline: scroll()) {
+  .lz-main-wrapper {
+    margin-left: 260px;
+  }
+}
+
+/* HI-FI CARD SYSTEM */
+.hifi-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+}
+
+.stat-icon-bg {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* WELCOME BANNER STYLE */
+.welcome-banner {
+  background: var(--navy);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-bubble-1 {
+  position: absolute;
+  right: -10px;
+  top: -20px;
+  width: 150px;
+  height: 150px;
+  background: rgba(29,158,117,0.18);
+  border-radius: 50%;
+}
+
+.welcome-bubble-2 {
+  position: absolute;
+  right: 100px;
+  bottom: -40px;
+  width: 100px;
+  height: 100px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+}
+
+.date-chip {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+/* BADGES */
+.badge-hifi {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.badge-active {
+  background: #E1F5EE;
+  color: #0F6E56;
+}
+
+/* SCROLLBAR */
+.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>

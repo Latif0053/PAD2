@@ -1,301 +1,111 @@
 <template>
-  <location-permission
-    v-model="showLocationmodal"
-    @granted="handleGranted"
-    @denied="handleDenied"
-  />
-  <div class="container-center bg-gray-100">
-    <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl">
-      <!-- Logo -->
-      <div class="flex justify-center mb-8">
-        <img src="@/assets/logo.svg" alt="Bimbel Lazuardy" />
+  <div class="auth-wrap" :style="{ backgroundImage: `url(${hero})` }">
+    <div class="login-panel">
+      <div class="logo">
+        <img :src="logo" alt="Bimbel Lazuardy" />
       </div>
 
-      <!-- Detail Pribadi Section -->
-      <div class="mb-8">
-        <h2 class="flex justify-center text-xl font-bold mb-6">
-          Detail Pribadi
-        </h2>
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Daftar Akun Siswa</h2>
+        <p class="text-sm text-gray-500 mt-1">Buat akun untuk memulai perjalanan belajarmu.</p>
+      </div>
 
-        <div class="space-y-4">
-          <div>
-            <label class="text-sm mb-2">Nama Lengkap</label>
+      <form @submit.prevent="handleNext" class="login-form" novalidate>
+        <div class="form-group">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            v-model="form.email"
+            type="email"
+            required
+            placeholder="Masukkan email"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#41a6c2]/50 focus:border-[#41a6c2] transition-all bg-white/70 backdrop-blur-sm"
+          />
+        </div>
+
+        <div class="form-group password-group">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <div class="relative">
             <input
-              v-model="form.namaLengkap"
-              type="text"
-              class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
+              v-model="form.password"
+              :type="showPassword ? 'text' : 'password'"
+              required
+              placeholder="Minimal 8 karakter"
+              minlength="8"
+              class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#41a6c2]/50 focus:border-[#41a6c2] transition-all bg-white/70 backdrop-blur-sm"
             />
-          </div>
-
-          <div>
-            <label class="text-sm mb-2">Email</label>
-            <input
-              v-model="form.email"
-              type="email"
-              class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
-            />
-          </div>
-
-          <div class="relative mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Password</label
+            <button
+              type="button"
+              class="password-toggle"
+              @click="showPassword = !showPassword"
             >
-            <div class="relative">
-              <input
-                v-model="form.password"
-                :type="showPassword ? 'text' : 'password'"
-                class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-[#41a6c2]"
-              />
-              <button
-                type="button"
-                class="password-toggle"
-                @click="showPassword = !showPassword"
-                aria-label="Toggle password visibility"
-              >
-                <EyeClosed v-if="showPassword" class="eye-icon" />
-                <Eye v-else class="eye-icon" />
-              </button>
-            </div>
-          </div>
-
-          <!-- Confirm Password -->
-          <div class="relative mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Konfirmasi Password</label
-            >
-            <div class="relative">
-              <input
-                v-model="form.passwordConfirm"
-                :type="showPassword ? 'text' : 'password'"
-                class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-[#41a6c2]"
-              />
-            </div>
-            <p
-              v-if="
-                form.passwordConfirm && form.password !== form.passwordConfirm
-              "
-              class="text-red-600 text-sm mt-1"
-            >
-              Password tidak cocok.
-            </p>
-          </div>
-
-          <div>
-            <label class="text-sm mb-2">Jenis Kelamin</label>
-            <select
-              v-model="form.jenisKelamin"
-              class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
-            >
-              <option value="">Pilih Jenis Kelamin</option>
-              <option value="pria">Laki-laki</option>
-              <option value="wanita">Perempuan</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-sm mb-2">Tanggal Lahir</label>
-            <div class="grid grid-cols-3 gap-2">
-              <select
-                v-model.number="form.tanggalLahir.hari"
-                class="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
-              >
-                <option :value="''">Hari</option>
-                <option v-for="d in daysInmonth" :key="d" :value="d">
-                  {{ d }}
-                </option>
-              </select>
-
-              <select
-                v-model.number="form.tanggalLahir.bulan"
-                class="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
-              >
-                <option :value="''">Bulan</option>
-                <option v-for="(m, i) in months" :key="i" :value="i + 1">
-                  {{ m }}
-                </option>
-              </select>
-
-              <select
-                v-model.number="form.tanggalLahir.tahun"
-                class="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
-              >
-                <option :value="''">Tahun</option>
-                <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="text-sm mb-2">Nomor Telepon</label>
-            <input
-              v-model="form.nomorTelepon"
-              type="tel"
-              class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
-              placeholder="+62..."
-            />
-          </div>
-
-          <div>
-            <label class="text-sm mb-2">Agama</label>
-            <select
-              v-model="form.agama"
-              class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
-            >
-              <option value="">Pilih Agama</option>
-              <option value="islam">Islam</option>
-              <option value="kristen">Kristen</option>
-              <option value="katolik">Katolik</option>
-              <option value="hindu">Hindu</option>
-              <option value="buddha">Buddha</option>
-              <option value="konghucu">Konghucu</option>
-            </select>
+              <EyeClosed v-if="showPassword" class="eye-icon" />
+              <Eye v-else class="eye-icon" />
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- Detail Alamat Section -->
-      <div class="mb-8">
-        <h2 class="flex justify-center text-xl font-bold mb-6">
-          Detail Alamat
-        </h2>
-
-        <div class="space-y-4">
-          <wilayah-dropdown />
-          <div>
-            <label class="text-sm mb-2">Alamat</label>
-            <textarea
-              v-model="form.alamat"
-              rows="4"
-              class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#41a6c2]"
-            ></textarea>
+        <div class="form-group password-group mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+          <div class="relative">
+            <input
+              v-model="form.passwordConfirm"
+              :type="showPasswordConfirm ? 'text' : 'password'"
+              required
+              placeholder="Ulangi password"
+              class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#41a6c2]/50 focus:border-[#41a6c2] transition-all bg-white/70 backdrop-blur-sm"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              @click="showPasswordConfirm = !showPasswordConfirm"
+            >
+              <EyeClosed v-if="showPasswordConfirm" class="eye-icon" />
+              <Eye v-else class="eye-icon" />
+            </button>
           </div>
+          <p v-if="form.passwordConfirm && form.password !== form.passwordConfirm" class="text-red-500 text-xs mt-1">
+            Password tidak cocok.
+          </p>
+          <p v-if="errorMsg" class="text-red-500 text-xs mt-1">{{ errorMsg }}</p>
         </div>
-      </div>
 
-      <!-- Button -->
-      <div class="flex justify-between">
-        <button
-          @click="handleBack"
-          class="border border-[#41a6c2] text-[#41a6c2] hover:bg-[#41a6c2]/10 px-8 py-3 rounded-lg font-medium transition-colors"
-        >
-          Kembali
-        </button>
-        <button
-          @click="handleNext"
-          class="bg-[#41a6c2] hover:bg-[#2e8694] text-white px-8 py-3 rounded-lg font-medium transition-colors"
-        >
-          Selanjutnya
-        </button>
-      </div>
+        <div class="button-group flex gap-4">
+          <button type="button" @click="handleBack" class="btn-secondary flex-1">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary flex-1" :disabled="submitting">
+            {{ submitting ? "Memproses..." : "Daftar" }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { Eye } from "lucide-vue-next";
-import { EyeClosed } from "lucide-vue-next";
-import WilayahDropdown from "@/components/WilayahDropdown.vue";
-import LocationPermission from "@/components/LocationPermission.vue";
+import { Eye, EyeClosed } from "lucide-vue-next";
 import { useRegisterStore } from "@/stores/registerStore";
 import { storeToRefs } from "pinia";
 import { initiateRegister } from "@/services/authRegister";
+import hero from "@/assets/hero.png";
+import logo from "@/assets/logo.svg";
 
 const router = useRouter();
 const showPassword = ref(false);
+const showPasswordConfirm = ref(false);
 const submitting = ref(false);
 const errorMsg = ref("");
-const showLocationmodal = ref(true);
-const userLocation = ref(null);
+
 const register = useRegisterStore();
 const { form } = storeToRefs(register);
-const LOC_KEY = "register:location";
-const LOC_PERMISSION_KEY = "register:loc-permission";
 
 onMounted(() => register.loadFromStorage());
 watch(form, () => register.saveToStorage(), { deep: true });
 
-const months = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
-
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
-
-const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
-
-const daysInmonth = computed(() => {
-  const b = Number(form.value.tanggalLahir?.bulan || 0);
-  const t = Number(form.value.tanggalLahir?.tahun || 0);
-
-  if (!b) return 31;
-  if ([1, 3, 5, 7, 8, 10, 12].includes(b)) return 31;
-  if ([4, 6, 9, 11].includes(b)) return 30;
-  return isLeap(t) ? 29 : 28;
-});
-
-watch(
-  () => [form.value.tanggalLahir?.bulan, form.value.tanggalLahir?.tahun],
-  () => {
-    const max = daysInmonth.value;
-    if (Number(form.value.tanggalLahir.hari) > max) {
-      form.value.tanggalLahir.hari = "";
-    }
-  },
-  { immediate: true }
-);
-
-async function handleGranted(loc) {
-  // simpan lokasi
-  userLocation.value = loc;
-  form.value.location = loc; // akan ikut tersimpan di store (watch deep)
-  localStorage.setItem(LOC_KEY, JSON.stringify(loc));
-  showLocationmodal.value = false;
-
-  // optional: isi alamat otomatis (reverse geocoding)
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${loc.lat}&lon=${loc.lng}`
-    );
-    const data = await res.json();
-    if (data?.display_name && !form.value.alamat) {
-      form.value.alamat = data.display_name;
-    }
-  } catch {
-    // abaikan jika gagal geocoding
-  }
-}
-
-function handleDenied() {
-  localStorage.setItem(LOC_PERMISSION_KEY, "denied");
-  showLocationmodal.value = false;
-}
-
-// muat lokasi tersimpan saat buka halaman
-onMounted(() => {
-  register.loadFromStorage();
-  const raw = localStorage.getItem(LOC_KEY);
-  if (raw) {
-    try {
-      userLocation.value = JSON.parse(raw);
-    } catch {}
-  }
-});
-
 const handleBack = () => {
-  if (confirm("Batalkan pendaftaran? Data yang sudah diisi akan di hapus.")) {
+  if (confirm("Batalkan pendaftaran? Data yang sudah diisi akan dihapus.")) {
     if (register.reset) register.reset();
     else localStorage.removeItem("register:form");
     router.push("/login");
@@ -307,85 +117,161 @@ const handleNext = async () => {
 
   if ((form.value.password || "").length < 8) {
     errorMsg.value = "Password minimal 8 karakter";
-    alert(errorMsg.value);
     return;
   }
   if (form.value.password !== form.value.passwordConfirm) {
     errorMsg.value = "Password dan konfirmasi tidak cocok";
-    alert(errorMsg.value);
+    return;
+  }
+  if (!form.value.email) {
+    errorMsg.value = "Email wajib diisi";
     return;
   }
 
-  // rakit payload untuk backend
+  // Placeholder data for initial registration step (as required by original payload)
   const payload = {
-    full_name: form.value.namaLengkap,
+    full_name: form.value.namaLengkap || "Guest",
     email: form.value.email,
     password: form.value.password,
     password_confirmation: form.value.passwordConfirm,
-    gender: form.value.jenisKelamin,
-    birth_day: form.value.tanggalLahir.hari,
-    birth_month: form.value.tanggalLahir.bulan,
-    birth_year: form.value.tanggalLahir.tahun,
-    phone: form.value.nomorTelepon,
-    religion: form.value.agama,
-    address: form.value.alamat,
+    gender: form.value.jenisKelamin || "pria",
+    birth_day: form.value.tanggalLahir?.hari || "01",
+    birth_month: form.value.tanggalLahir?.bulan || "01",
+    birth_year: form.value.tanggalLahir?.tahun || "2000",
+    phone: form.value.nomorTelepon || "080000000000",
+    religion: form.value.agama || "islam",
+    address: form.value.alamat || "Indonesia",
     role: "student",
   };
 
   submitting.value = true;
   try {
     const res = await initiateRegister(payload);
-    console.log("Register response:", res);
-
-    // Simpan email untuk halaman OTP
-    // Backend bisa return res.email atau res.data.email
     const userEmail = res.email || res.data?.email || payload.email;
     const tempToken = res.temp_token || res.data?.temp_token || res.token;
-
-    console.log("Saving to localStorage:", { userEmail, tempToken });
 
     localStorage.setItem("register:email", userEmail);
     localStorage.setItem("register:temp_token", tempToken);
     register.saveToStorage();
 
-    // Backend flow: setelah initiate, kirim OTP -> arahkan ke halaman OTP
     router.push("/student/register-otp");
   } catch (e) {
-    if (e.errors) {
-      console.log("Detail errors:", e.errors);
-    }
-    alert(e.message || "Gagal melakukan registrasi.");
-    errorMsg.value = e?.response?.data?.message || "Registrasi gagal";
-    alert(errorMsg.value);
+    errorMsg.value = e?.response?.data?.message || e.message || "Registrasi gagal";
   } finally {
     submitting.value = false;
   }
 };
 </script>
 
-<style>
+<style scoped>
+/* ── Full-screen background ── */
+.auth-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center; /* Membawa ke tengah vertikal */
+  justify-content: center; /* Membawa ke tengah horizontal */
+  padding: 20px;
+}
+
+/* ── Panel Card di Tengah ── */
+.login-panel {
+  width: 100%;
+  max-width: 480px; /* Batas lebar form */
+  max-height: 90vh; /* Agar bisa discroll jika layar terlalu pendek */
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 24px; /* Membuat sudut membulat seperti card */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.login-panel::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Elemen di dalam form (Sama seperti sebelumnya) ── */
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.logo img {
+  width: 140px;
+  height: auto;
+  object-fit: contain;
+}
+.form-group {
+  margin-bottom: 20px;
+}
 .password-group {
   position: relative;
 }
 .password-toggle {
   position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 14px;
+  top: 38px;
   background: none;
   border: none;
   cursor: pointer;
   padding: 4px;
+  color: #6b7280;
+  transition: color 0.2s;
 }
-
+.password-toggle:hover {
+  color: #41a6c2;
+}
 .eye-icon {
-  width: 24px;
-  height: 24px;
-  fill: #999;
-  transition: fill 0.2s;
+  width: 20px;
+  height: 20px;
 }
-
-.password-toggle:hover .eye-icon {
-  fill: #666;
+.btn-primary {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #41a6c2;
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+  box-shadow: 0 4px 6px rgba(65, 166, 194, 0.2);
+}
+.btn-primary:hover:not(:disabled) {
+  background: #2e8694;
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #41a6c2;
+  border: 1.5px solid #41a6c2;
+  transition: background 0.2s;
+}
+.btn-secondary:hover {
+  background: rgba(65, 166, 194, 0.1);
+}
+@media (max-width: 480px) {
+  .login-panel {
+    padding: 32px 24px;
+  }
 }
 </style>

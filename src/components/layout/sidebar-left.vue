@@ -1,197 +1,64 @@
 <template>
-  <!-- LEFT SIDEBAR -->
-  <transition name="slide-left">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-40 flex pt-20"
-      @click.self="close"
-    >
-      <!-- Sidebar Content -->
-      <div class="relative w-64 bg-white h-full shadow-xl flex flex-col">
-        <!-- Header with Close Button -->
-        <div class="p-4 border-b flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-800">Menu</h2>
+  <aside class="lz-sidebar">
+
+    <!-- Nav -->
+    <nav class="lz-nav">
+      <RouterLink
+        to="/student/dashboard"
+        @click="close"
+        :class="['lz-item', isActive('dashboard') && 'lz-item--active']"
+      >
+        <div class="lz-item-icon-wrap">
+          <LayoutDashboard class="lz-item-icon" />
         </div>
+        <span class="lz-label">Dashboard</span>
+      </RouterLink>
 
-        <!-- Menu Items -->
-        <nav class="flex-1 overflow-y-auto p-4">
-          <ul class="space-y-2">
-            <!-- Dahboard -->
-            <li>
-              <RouterLink
-                to="/student/dashboard"
-                @click="close"
-                :class="[
-                  'flex items-center gap-3 p-3 rounded-lg transition-colors group',
-                  isActive('dashboard')
-                    ? 'bg-[#41a6c2] text-white'
-                    : 'hover:bg-[#41a6c2]/10',
-                ]"
-              >
-                <div
-                  :class="[
-                    'w-10 h-10 flex items-center justify-center rounded-lg transition-colors',
-                    isActive('dashboard')
-                      ? 'bg-white/0'
-                      : 'bg-white border-2 border-gray-300 group-hover:border-[#41a6c2]',
-                  ]"
-                >
-                  <LayoutDashboard
-                    :class="
-                      isActive('dashboard')
-                        ? 'w-5 h-5 text-white'
-                        : 'w-5 h-5 text-gray-600 group-hover:text-[#41a6c2]'
-                    "
-                  />
-                </div>
-                <span
-                  :class="
-                    isActive('dashboard')
-                      ? 'font-medium'
-                      : 'font-medium text-gray-700'
-                  "
-                  >Dashboard</span
-                >
-              </RouterLink>
-            </li>
-            <!-- Paket Belajar -->
-            <li>
-              <RouterLink
-                to="/packages"
-                @click="close"
-                :class="[
-                  'flex items-center gap-3 p-3 rounded-lg transition-colors group',
-                  isActive('paket')
-                    ? 'bg-[#41a6c2] text-white'
-                    : 'hover:bg-[#41a6c2]/10',
-                ]"
-              >
-                <div
-                  :class="[
-                    'w-10 h-10 flex items-center justify-center rounded-lg transition-colors',
-                    isActive('paket')
-                      ? 'bg-white/0 border-transparent'
-                      : 'bg-white border-2 border-gray-300 group-hover:border-[#41a6c2]',
-                  ]"
-                >
-                  <BookText
-                    :class="
-                      isActive('paket')
-                        ? 'w-5 h-5 text-white'
-                        : 'w-5 h-5 text-gray-600 group-hover:text-[#41a6c2]'
-                    "
-                  />
-                </div>
-                <span
-                  :class="
-                    isActive('paket')
-                      ? 'font-medium'
-                      : 'font-medium text-gray-700'
-                  "
-                  >Paket Belajar</span
-                >
-              </RouterLink>
-            </li>
-
-            <!-- Jadwal Belajar -->
-            <li>
-              <RouterLink
-                to="/student/schedule"
-                @click="close"
-                :class="[
-                  'flex items-center gap-3 p-3 rounded-lg transition-colors group',
-                  isActive('jadwal')
-                    ? 'bg-[#41a6c2] text-white'
-                    : 'hover:bg-[#41a6c2]/10',
-                ]"
-              >
-                <div
-                  :class="[
-                    'w-10 h-10 flex items-center justify-center rounded-lg transition-colors',
-                    isActive('jadwal')
-                      ? 'bg-white/0 border-transparent'
-                      : 'bg-white border-2 border-gray-300 group-hover:border-[#41a6c2]',
-                  ]"
-                >
-                  <CalendarDays
-                    :class="
-                      isActive('jadwal')
-                        ? 'w-5 h-5 text-white'
-                        : 'w-5 h-5 text-gray-600 group-hover:text-[#41a6c2]'
-                    "
-                  />
-                </div>
-                <span
-                  :class="
-                    isActive('jadwal')
-                      ? 'font-medium'
-                      : 'font-medium text-gray-700'
-                  "
-                  >Jadwal Belajar</span
-                >
-              </RouterLink>
-            </li>
-
-            <!-- Riwayat Pembayaran -->
-            <li>
-              <RouterLink
-                to="/student/payment-history"
-                @click="close"
-                :class="[
-                  'flex items-center gap-3 p-3 rounded-lg transition-colors group',
-                  isActive('riwayat')
-                    ? 'bg-[#41a6c2] text-white'
-                    : 'hover:bg-[#41a6c2]/10',
-                ]"
-              >
-                <div
-                  :class="[
-                    'w-10 h-10 flex items-center justify-center rounded-lg transition-colors',
-                    isActive('riwayat')
-                      ? 'bg-white/0 border-transparent'
-                      : 'bg-white border-2 border-gray-300 group-hover:border-[#41a6c2]',
-                  ]"
-                >
-                  <History
-                    :class="
-                      isActive('riwayat')
-                        ? 'w-5 h-5 text-white'
-                        : 'w-5 h-5 text-gray-600 group-hover:text-[#41a6c2]'
-                    "
-                  />
-                </div>
-                <span
-                  :class="
-                    isActive('riwayat')
-                      ? 'font-medium'
-                      : 'font-medium text-gray-700'
-                  "
-                  >Riwayat Pembayaran</span
-                >
-              </RouterLink>
-            </li>
-          </ul>
-        </nav>
-
-        <!-- Logout Button (at bottom) -->
-        <div class="p-4 border-t">
-          <button
-            @click="handleLogout"
-            class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors group"
-          >
-            <div
-              class="w-10 h-10 flex items-center justify-center bg-white border-2 border-red-300 rounded-lg group-hover:border-red-500 transition-colors"
-            >
-              <LogOut
-                class="w-5 h-5 text-red-600 group-hover:text-red-500 transition-colors"
-              />
-            </div>
-            <span class="font-medium">Keluar</span>
-          </button>
+      <RouterLink
+        to="/packages"
+        @click="close"
+        :class="['lz-item', isActive('paket') && 'lz-item--active']"
+      >
+        <div class="lz-item-icon-wrap">
+          <BookText class="lz-item-icon" />
         </div>
-      </div>
+        <span class="lz-label">Paket Belajar</span>
+      </RouterLink>
+
+      <RouterLink
+        to="/student/schedule"
+        @click="close"
+        :class="['lz-item', isActive('jadwal') && 'lz-item--active']"
+      >
+        <div class="lz-item-icon-wrap">
+          <CalendarDays class="lz-item-icon" />
+        </div>
+        <span class="lz-label">Jadwal Belajar</span>
+      </RouterLink>
+
+      <RouterLink
+        to="/student/payment-history"
+        @click="close"
+        :class="['lz-item', isActive('riwayat') && 'lz-item--active']"
+      >
+        <div class="lz-item-icon-wrap">
+          <History class="lz-item-icon" />
+        </div>
+        <span class="lz-label">Riwayat Bayar</span>
+      </RouterLink>
+    </nav>
+
+    <!-- Logout -->
+    <div class="lz-logout-area">
+      <button @click="handleLogout" class="lz-logout-btn">
+        <div class="lz-item-icon-wrap">
+          <LogOut class="lz-item-icon lz-logout-icon" />
+        </div>
+        <span class="lz-label lz-logout-label">Keluar</span>
+      </button>
     </div>
-  </transition>
+
+  </aside>
 </template>
 
 <script setup>
@@ -206,23 +73,19 @@ import {
 } from "lucide-vue-next";
 import { logout as apiLogout } from "@/services/authService";
 
-// Props
 const props = defineProps({
   isOpen: {
     type: Boolean,
     default: false,
   },
-  // active menu: 'dashboard' | 'paket' | 'jadwal' | 'riwayat'
   active: {
     type: String,
     default: "",
   },
 });
 
-// Emits
 const emit = defineEmits(["close"]);
 
-// Functions
 const close = () => {
   emit("close");
 };
@@ -231,7 +94,7 @@ const router = useRouter();
 
 const handleLogout = async () => {
   try {
-    await apiLogout(); // panggil API logout backend
+    await apiLogout();
   } catch (e) {
     console.error("Logout error:", e);
   } finally {
@@ -242,7 +105,6 @@ const handleLogout = async () => {
 
 const route = useRoute();
 
-// Update props.active dynamically based on the current route
 const isActive = (menu) => {
   switch (menu) {
     case "dashboard":
@@ -260,19 +122,191 @@ const isActive = (menu) => {
 </script>
 
 <style scoped>
-/* Slide transitions for sidebar */
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: all 0.5s ease;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
+
+/*
+  ─────────────────────────────────────────────────────────────
+  CSS Scroll-driven Animation
+  Scroll 0px  → Full height (menyambung dari bawah navbar ke dasar), nempel kiri.
+  Scroll 60px → Jadi pulau kecil (floating), sejajar kiri dengan navbar.
+  ─────────────────────────────────────────────────────────────
+*/
+
+@keyframes lz-sidebar-float {
+  0% {
+    top: 72px; 
+    height: calc(100vh - 72px); 
+    width: 260px; /* Lebar normal */
+    left: 0;
+    border-radius: 0;
+    border-color: transparent #0C447C transparent transparent; 
+    box-shadow: none;
+    background: rgba(255, 255, 255, 1);
+  }
+  100% {
+    top: 104px; 
+    height: calc(100vh - 128px); 
+    
+    width: 70px; 
+    
+    left: calc(50vw - min(47.5vw, 650px)); 
+    border-radius: 16px;
+    border-color: #0C447C; 
+    box-shadow: 0 10px 30px rgba(12, 68, 124, 0.15);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+  }
 }
 
-.slide-left-enter-from,
-.slide-left-leave-to {
-  opacity: 0;
+@keyframes lz-label-hide {
+  0%   { opacity: 1; max-width: 160px; overflow: hidden; white-space: nowrap; }
+  60%  { opacity: 0; max-width: 160px; }
+  100% { opacity: 0; max-width: 0;     overflow: hidden; white-space: nowrap; }
 }
 
-.slide-left-enter-from > div:last-child,
-.slide-left-leave-to > div:last-child {
-  transform: translateX(-100%);
+@keyframes lz-logo-text-hide {
+  0%   { opacity: 1; max-width: 160px; }
+  60%  { opacity: 0; max-width: 160px; }
+  100% { opacity: 0; max-width: 0;     }
+}
+
+/* ── Sidebar shell ─────────────────────────────────────────── */
+.lz-sidebar {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  /* Base border tebalnya */
+  border: 1.5px solid #0C447C;
+
+  /* Menjalankan animasi ukuran & posisi */
+  animation: lz-sidebar-float linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0px 60px;
+}
+
+/* ── Fallback: Firefox & Safari yang belum support ─────────── */
+@supports not (animation-timeline: scroll()) {
+  .lz-sidebar { 
+    animation: none; 
+    top: 72px;
+    height: calc(100vh - 72px);
+    width: 260px; 
+    left: 0; 
+    border-radius: 0;
+    border-color: transparent #0C447C transparent transparent;
+  }
+  .lz-label { animation: none; opacity: 1; max-width: 160px; }
+  .lz-logo-text-wrap { animation: none; opacity: 1; max-width: 160px; }
+}
+
+/* ── Logo area ─────────────────────────────────────────────── */
+.lz-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(12, 68, 124, 0.1);
+  flex-shrink: 0;
+  background: transparent;
+}
+
+/* ── Nav ───────────────────────────────────────────────────── */
+.lz-nav {
+  flex: 1;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.lz-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  background: transparent;
+  transition: all 0.15s;
+  cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lz-item:hover:not(.lz-item--active) {
+  background: rgba(12, 68, 124, 0.05);
+  border-color: #0C447C;
+}
+
+.lz-item--active {
+  background: rgba(12, 68, 124, 0.08);
+  border: 1.5px solid #0C447C;
+}
+
+.lz-item--active .lz-label,
+.lz-item:hover:not(.lz-item--active) .lz-label {
+  color: #0C447C;
+  font-weight: 700;
+}
+
+/* ── Icon wrap ─────────────────────────────────────────────── */
+.lz-item-icon-wrap {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lz-item-icon {
+  width: 20px;
+  height: 20px;
+  color: #0C447C;
+  flex-shrink: 0;
+}
+
+.lz-item--active .lz-item-icon,
+.lz-item:hover:not(.lz-item--active) .lz-item-icon {
+  color: #0C447C;
+}
+
+/* ── Logout ─────────────────────────────────────────────────── */
+.lz-logout-area {
+  padding: 8px;
+  border-top: 1px solid rgba(12, 68, 124, 0.1);
+  flex-shrink: 0;
+}
+
+.lz-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1.5px solid #D85A30;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  overflow: hidden;
+}
+
+.lz-logout-btn:hover {
+  background: rgba(216, 90, 48, 0.08);
+}
+
+.lz-logout-icon {
+  color: #D85A30 !important;
+}
+
+.lz-logout-label {
+  color: #D85A30 !important;
+  font-weight: 600;
 }
 </style>

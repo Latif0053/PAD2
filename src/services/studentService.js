@@ -4,9 +4,11 @@ import { api } from "./http";
  * Get student's schedules
  * @param {string} status - Filter: 'all', 'upcoming', 'completed', 'cancelled'
  */
+
+
 export const getMySchedules = async (status = "all") => {
   try {
-    const response = await api(`/api/student/schedules?status=${status}`);
+    const response = await api(`/api/student/schedule?status=${status}`);
     console.log("API Response for student schedules:", response);
     return response.data || [];
   } catch (error) {

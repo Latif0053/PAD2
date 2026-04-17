@@ -1,7 +1,7 @@
 import api from "./api";
 
 /**
- * Get public tutor list (no authentication required)
+ * Get public tutor list (requires authentication)
  * @param {Object} params - Search parameters
  * @param {string} params.search - Search query (name)
  * @param {string} params.subject - Filter by subject
@@ -11,7 +11,7 @@ import api from "./api";
  */
 export async function getPublicTutors(params = {}) {
   try {
-    const response = await api.get("/tutors/public", { params });
+    const response = await api.get("/find-tutor", { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching public tutors:", error);
@@ -48,7 +48,7 @@ export async function searchTutors(params = {}) {
  */
 export async function getTutorDetail(tutorId) {
   try {
-    const response = await api.get(`/tutors/${tutorId}`);
+    const response = await api.get(`/tutor-profile/${tutorId}`);
     return response.data.data;
   } catch (error) {
     console.error("Error fetching tutor detail:", error);
@@ -59,11 +59,15 @@ export async function getTutorDetail(tutorId) {
 /**
  * Get available time slots for a tutor
  * @param {number} tutorId - Tutor user ID
+ * @param {string} date - Date in YYYY-MM-DD format (optional)
  * @returns {Promise<Object>} Available schedules
  */
-export async function getAvailableSlots(tutorId) {
+export async function getAvailableSlots(tutorId, date = null) {
   try {
-    const response = await api.get(`/tutors/${tutorId}/available-schedules`);
+    const url = date
+      ? `/tutor-profile/${tutorId}/available-slots?date=${date}`
+      : `/tutor-profile/${tutorId}/available-slots`;
+    const response = await api.get(url);
     return response.data;
   } catch (error) {
     console.error("Error fetching available slots:", error);

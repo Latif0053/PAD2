@@ -1,219 +1,197 @@
 <template>
-  <div class="bg-white min-h-screen">
-    <Navbar />
+  <div class="min-h-screen bg-[#EEF2F7] dashboard-scope relative">
+    
+    <div class="relative z-50">
+      <Navbar />
+    </div>
 
-    <!-- Search Bar -->
-    <section class="bg-white py-6 border-b border-gray-200">
-      <div class="container mx-auto px-4">
-        <div class="relative max-w-2xl mx-auto">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Cari tutor berdasarkan nama..."
-            class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-          <search
-            v-model="searchQuery"
-            class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-          />
+    <div class="lz-main-wrapper flex flex-col min-h-screen">
+      
+      <section class="bg-[#0C447C] py-10 md:py-14 relative overflow-hidden shrink-0">
+        <div class="absolute top-0 left-0 -translate-y-1/2 -translate-x-1/4 w-[300px] h-[300px] bg-[#1D9E75]/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 translate-y-1/2 translate-x-1/4 w-[250px] h-[250px] bg-[#EF9F27]/10 rounded-full blur-3xl"></div>
+        
+        <div class="relative z-10 text-center px-6 max-w-3xl mx-auto">
+          <h1 class="text-3xl md:text-5xl font-black text-white font-heading mb-3 tracking-tight">
+            Temukan Tutor Terbaikmu
+          </h1>
+          <p class="text-white/80 font-body text-sm md:text-base leading-relaxed">
+            Pilih dari puluhan tutor profesional dan bersertifikasi untuk mendampingi perjalanan belajarmu menuju PTN impian.
+          </p>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Filter Section -->
-    <section class="bg-secondary-light py-4 border-b border-gray-200">
-      <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <select v-model="selectedSubject" class="filter-select">
-          <option value="">Semua Mata Pelajaran</option>
-          <option v-for="subject in subjects" :key="subject">
-            {{ subject }}
-          </option>
-        </select>
-
-        <select v-model="selectedLevel" class="filter-select">
-          <option value="">Semua Jenjang</option>
-          <option v-for="level in levels" :key="level">{{ level }}</option>
-        </select>
-
-        <select v-model="selectedMode" class="filter-select">
-          <option value="">Semua Mode</option>
-          <option>Online</option>
-          <option>Offline</option>
-        </select>
-
-        <button
-          @click="applyFilter"
-          class="bg-primary text-white rounded-lg px-4 py-2 hover:bg-primary-dark"
-        >
-          Terapkan Filter
-        </button>
-      </div>
-    </section>
-
-    <!-- Tutor List -->
-    <section class="container mx-auto px-4 py-8">
-      <!-- Loading State -->
-      <div v-if="isLoading" class="flex justify-center items-center py-12">
-        <div class="text-center">
-          <div
-            class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"
-          ></div>
-          <p class="mt-4 text-gray-600">Memuat data tutor...</p>
-        </div>
-      </div>
-
-      <!-- Error State -->
-      <div
-        v-else-if="error"
-        class="bg-red-50 border border-red-200 rounded-lg p-6 text-center max-w-md mx-auto"
-      >
-        <svg
-          class="w-16 h-16 text-red-500 mx-auto mb-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">
-          Terjadi Kesalahan
-        </h3>
-        <p class="text-gray-600 mb-4">{{ error }}</p>
-        <button
-          @click="loadTutors"
-          class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition"
-        >
-          Coba Lagi
-        </button>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="filteredTutors.length === 0" class="text-center py-12">
-        <p class="text-gray-600 text-lg">Tidak ada tutor yang ditemukan</p>
-        <p class="text-gray-500 text-sm mt-2">
-          Coba ubah filter atau kata kunci pencarian
-        </p>
-      </div>
-
-      <!-- Tutor List -->
-      <div v-else>
-        <h2 class="text-2xl font-semibold mb-6">
-          {{ filteredTutors.length }} Tutor Tersedia
-        </h2>
-
-        <div class="flex flex-col gap-6">
-          <div
-            v-for="tutor in filteredTutors"
-            :key="tutor.id"
-            class="bg-white shadow-md rounded-2xl p-5 border border-gray-100 hover:shadow-lg transition flex flex-col md:flex-row items-start md:items-center gap-4"
-          >
-            <img
-              :src="tutor.photo"
-              alt="Tutor Photo"
-              class="w-24 h-24 rounded-full object-cover border border-gray-200"
+      <main class="flex-1 px-6 md:px-12 max-w-[1140px] mx-auto w-full font-body relative z-20 py-8">
+        
+        <div class="bg-white rounded-2xl shadow-xl shadow-black/5 p-6 md:p-8 border border-black/5 mb-8">
+          <div class="relative mb-6">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search class="w-6 h-6 text-[#9ba3ab]" />
+            </div>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Ketik nama tutor yang kamu cari..."
+              class="w-full pl-12 pr-4 py-4 bg-[#F4F7FB] border-2 border-transparent rounded-xl text-base font-bold text-[#1a2332] placeholder-[#9ba3ab] focus:bg-white focus:border-[#1D9E75] focus:ring-4 focus:ring-[#1D9E75]/10 outline-none transition-all"
             />
+          </div>
 
-            <div class="flex-1">
-              <div
-                class="flex flex-col md:flex-row md:items-center md:justify-between"
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label class="form-label">Mata Pelajaran</label>
+              <select v-model="selectedSubject" class="form-input cursor-pointer">
+                <option value="">Semua Pelajaran</option>
+                <option v-for="subject in subjects" :key="subject">{{ subject }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Jenjang</label>
+              <select v-model="selectedLevel" class="form-input cursor-pointer">
+                <option value="">Semua Jenjang</option>
+                <option v-for="level in levels" :key="level">{{ level }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Metode Belajar</label>
+              <select v-model="selectedMode" class="form-input cursor-pointer">
+                <option value="">Semua Metode</option>
+                <option>Online</option>
+                <option>Offline</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button
+                @click="applyFilter"
+                class="w-full h-[52px] bg-[#0C447C] text-white rounded-xl font-bold text-sm hover:bg-[#042C53] transition-colors shadow-md shadow-[#0C447C]/20 uppercase tracking-wider"
               >
-                <div>
-                  <h3 class="font-semibold text-xl">{{ tutor.name }}</h3>
-                  <p class="text-gray-600">{{ tutor.subject }}</p>
-                  <div class="flex items-center gap-2 mt-1 flex-wrap">
-                    <span
-                      v-for="mode in tutor.teachingMode"
-                      :key="mode"
-                      :class="[
-                        'text-sm px-2 py-0.5 rounded',
-                        mode === 'online'
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-orange-100 text-orange-600',
-                      ]"
-                    >
-                      {{ mode.charAt(0).toUpperCase() + mode.slice(1) }}
-                    </span>
-                    <span
-                      class="text-sm bg-blue-100 text-blue-600 px-2 py-0.5 rounded"
-                      >{{ tutor.level }}</span
-                    >
+                Terapkan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div v-if="isLoading" class="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-black/5 shadow-sm">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-[#1a2332]/10 border-t-[#1D9E75]"></div>
+            <p class="mt-5 text-sm font-bold text-[#5a6370] uppercase tracking-widest">Mencari Tutor...</p>
+          </div>
+
+          <div v-else-if="error" class="bg-[#fee2e2] border border-red-200 rounded-2xl p-10 text-center flex flex-col items-center shadow-sm">
+            <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-5 text-red-500">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-[#1a2332] font-heading mb-2">Terjadi Kesalahan</h3>
+            <p class="text-sm font-medium text-[#5a6370] mb-6">{{ error }}</p>
+            <button @click="loadTutors" class="bg-[#0C447C] text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-[#042C53] transition-colors uppercase tracking-wider">
+              Coba Lagi
+            </button>
+          </div>
+
+          <div v-else-if="filteredTutors.length === 0" class="bg-white rounded-2xl border border-black/5 p-16 md:p-24 text-center flex flex-col items-center shadow-sm">
+            <div class="w-20 h-20 bg-[#EEF2F7] rounded-2xl flex items-center justify-center mb-6">
+              <Search class="w-10 h-10 text-[#9ba3ab]" />
+            </div>
+            <h3 class="text-xl font-black text-[#1a2332] font-heading mb-2">Tutor tidak ditemukan</h3>
+            <p class="text-sm font-medium text-[#5a6370]">Coba ubah kombinasi filter atau kata kunci pencarianmu.</p>
+          </div>
+
+          <div v-else>
+            <div class="flex items-center justify-between mb-6 px-2">
+              <h2 class="text-xl font-black text-[#1a2332] font-heading">
+                {{ filteredTutors.length }} Tutor Tersedia
+              </h2>
+            </div>
+
+            <div class="flex flex-col gap-6">
+              <div
+                v-for="tutor in filteredTutors"
+                :key="tutor.id"
+                class="hifi-card p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-start hover:border-[#1D9E75]/30 hover:-translate-y-1 transition-all duration-300"
+              >
+                <div class="shrink-0 relative mx-auto md:mx-0">
+                  <img
+                    :src="tutor.photo"
+                    alt="Tutor Photo"
+                    class="w-24 h-24 md:w-32 md:h-32 rounded-[20px] object-cover border-2 border-black/5 shadow-sm bg-slate-100"
+                  />
+                  <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white border border-black/5 shadow-md rounded-full px-3 py-1 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-[#EF9F27] fill-[#EF9F27]" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                    </svg>
+                    <span class="text-xs font-black text-[#1a2332]">{{ tutor.rating || 'Baru' }}</span>
                   </div>
                 </div>
 
-                <div class="text-right mt-3 md:mt-0">
-                  <p class="text-lg font-semibold text-primary">
-                    {{ formatPrice(tutor.price) }}/jam
+                <div class="flex-1 w-full flex flex-col justify-between">
+                  <div class="flex flex-col md:flex-row md:justify-between items-start gap-4">
+                    <div class="text-center md:text-left w-full md:w-auto">
+                      <h3 class="text-2xl font-black text-[#1a2332] font-heading mb-1">{{ tutor.name }}</h3>
+                      <p class="text-sm font-bold text-[#5a6370] mb-3">{{ tutor.subject }}</p>
+                      
+                      <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                        <span
+                          v-for="mode in tutor.teachingMode"
+                          :key="mode"
+                          class="px-3 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider"
+                          :class="mode === 'online' ? 'bg-[#E1F5EE] text-[#0F6E56]' : 'bg-[#FAEEDA] text-[#412402]'"
+                        >
+                          {{ mode }}
+                        </span>
+                        <span class="px-3 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-[#E6F1FB] text-[#185FA5]">
+                          {{ tutor.level }}
+                        </span>
+                        <span class="text-xs font-medium text-[#9ba3ab] ml-1 md:ml-2">
+                          ({{ tutor.reviews }} ulasan)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="text-center md:text-right mt-2 md:mt-0 bg-[#F4F7FB] md:bg-transparent p-4 md:p-0 rounded-xl w-full md:w-auto">
+                      <p class="text-[11px] font-bold text-[#5a6370] uppercase tracking-wider mb-1">Mulai Dari</p>
+                      <p class="text-2xl font-black text-[#1D9E75] font-heading flex items-center justify-center md:justify-end">
+                        {{ formatPrice(tutor.price) }}<span class="text-sm font-bold text-[#9ba3ab] ml-1">/jam</span>
+                      </p>
+                      <p class="text-xs font-bold text-[#185FA5] mt-1 flex items-center justify-center md:justify-end gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-[#1D9E75] animate-pulse"></span>
+                        Tersedia Sekarang
+                      </p>
+                    </div>
+                  </div>
+
+                  <p class="text-sm font-medium text-[#5a6370] mt-6 line-clamp-3 md:line-clamp-2 leading-relaxed text-center md:text-left">
+                    {{ tutor.bio }}
                   </p>
-                  <p class="text-sm text-gray-500">Tersedia sekarang</p>
+
+                  <div class="flex flex-col sm:flex-row items-center justify-end gap-3 mt-6 pt-6 border-t border-black/5">
+                    <button
+                      @click="goToDetail(tutor)"
+                      class="w-full sm:w-auto bg-[#0C447C] text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-[#042C53] transition-colors shadow-md shadow-[#0C447C]/20 uppercase tracking-wider"
+                    >
+                      Lihat Detail
+                    </button>
+                    <a
+                      :href="waLink(tutor.whatsapp)"
+                      target="_blank"
+                      rel="noopener"
+                      class="w-full sm:w-auto flex justify-center items-center gap-2 bg-[#1D9E75] text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-[#0F6E56] transition-colors shadow-md shadow-[#1D9E75]/20 uppercase tracking-wider"
+                    >
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.405-.883-.733-1.48-1.638-1.653-1.935-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                      </svg>
+                      Tanya Tutor
+                    </a>
+                  </div>
                 </div>
-              </div>
-
-              <div class="flex items-center gap-3 text-sm text-gray-600 mt-3">
-                <p class="flex items-center text-yellow-500">
-                  ★ <span class="ml-1 text-gray-800">{{ tutor.rating }}</span>
-                  <span class="text-gray-500 ml-1"
-                    >({{ tutor.reviews }} ulasan)</span
-                  >
-                </p>
-              </div>
-
-              <p class="text-gray-700 text-sm mt-3 mb-4">
-                {{ tutor.bio }}
-              </p>
-
-              <div class="flex gap-3 flex-wrap">
-                <a
-                  :href="waLink(tutor.whatsapp)"
-                  target="_blank"
-                  rel="noopener"
-                  class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition md:w-auto inline-flex items-center gap-2"
-                >
-                  <i class="bi bi-whatsapp"></i>
-                  WhatsApp
-                </a>
-                <button
-                  @click="goToDetail(tutor)"
-                  class="border-2 border-primary text-primary px-6 py-2 rounded-lg hover:bg-[#2ba9b2] hover:text-white transition w-fit"
-                >
-                  Lihat Detail
-                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </main>
 
-    <!-- Footer -->
-    <footer
-      class="bg-gradient-to-r from-primary to-secondary text-white py-8 mt-10"
-    >
-      <div class="container mx-auto px-4 grid md:grid-cols-2 gap-6">
-        <div>
-          <h3 class="text-lg font-semibold mb-2">Tentang Lazuardy</h3>
-          <p class="text-sm opacity-90">
-            Bimbel Lazuardy adalah platform bimbingan belajar online terpercaya
-            yang menghubungkan siswa dengan tutor berkualitas.
-          </p>
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold mb-2">Kontak Kami</h3>
-          <ul class="text-sm opacity-90">
-            <li>Email: info@lazuardy.com</li>
-            <li>Telepon: +62 812-3456-7890</li>
-            <li>Alamat: Yogyakarta, Indonesia</li>
-          </ul>
-        </div>
-      </div>
-      <p class="text-center text-sm mt-6 opacity-80">
-        © 2025 Bimbel Lazuardy. All rights reserved.
-      </p>
-    </footer>
+      <FooterStudent class="mt-auto border-t border-black/5 bg-white shrink-0" />
+    </div>
   </div>
 </template>
 
@@ -222,124 +200,58 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { Search } from "lucide-vue-next";
 import Navbar from "@/components/layout/navbar.vue";
+import FooterStudent from "@/components/layout/footer.vue";
 import { getPublicTutors } from "@/services/tutorService";
 
 const router = useRouter();
 
-// Dynamic subjects and levels from backend
 const subjects = ref([]);
 const levels = ["SD", "SMP", "SMA"];
 
-// Filter states
 const searchQuery = ref("");
 const selectedSubject = ref("");
 const selectedLevel = ref("");
 const selectedMode = ref("");
 
-// Data states
 const tutors = ref([]);
 const isLoading = ref(false);
 const error = ref(null);
 
-// Fetch tutors from backend
 async function loadTutors() {
   try {
     isLoading.value = true;
     error.value = null;
 
     const params = {};
+    if (searchQuery.value.trim()) params.search = searchQuery.value.trim();
+    if (selectedSubject.value) params.subject = selectedSubject.value;
+    if (selectedLevel.value) params.level = selectedLevel.value;
+    if (selectedMode.value) params.mode = selectedMode.value.toLowerCase();
 
-    // Add search query if exists
-    if (searchQuery.value.trim()) {
-      params.search = searchQuery.value.trim();
-    }
-
-    // Add filters
-    if (selectedSubject.value) {
-      params.subject = selectedSubject.value;
-    }
-    if (selectedLevel.value) {
-      params.level = selectedLevel.value;
-    }
-    if (selectedMode.value) {
-      params.mode = selectedMode.value.toLowerCase();
-    }
-
-    console.log("Fetching public tutors with params:", params);
     const response = await getPublicTutors(params);
+    let tutorData = response.data && Array.isArray(response.data) ? response.data : [];
 
-    console.log("========== PUBLIC TUTORS RESPONSE ==========");
-    console.log("Response:", response);
-    console.log("Response data:", response.data);
-    console.log("Total tutors:", response.total);
-
-    // Debug first tutor data structure
-    if (response.data && response.data.length > 0) {
-      console.log("First tutor raw data:", response.data[0]);
-      console.log("- profile_photo_url:", response.data[0].profile_photo_url);
-      console.log("- keahlian:", response.data[0].keahlian);
-      console.log("- market_siswa:", response.data[0].market_siswa);
-      console.log("- price:", response.data[0].tutor_info?.price);
-      console.log("- subjects:", response.data[0].subjects);
-    }
-    console.log("==========================================");
-
-    // Handle response format
-    let tutorData = [];
-
-    if (response.data && Array.isArray(response.data)) {
-      tutorData = response.data;
-      console.log("✅ Found", tutorData.length, "tutors");
-    }
-
-    // Map backend data to frontend format
     if (tutorData.length > 0) {
       tutors.value = tutorData.map((tutor) => {
-        // Get subjects
         const tutorSubjects = tutor.subjects || [];
         const subjectNames = tutorSubjects.map((s) => s.name).join(", ");
-
-        // Fallback: jika subjects kosong, gunakan keahlian
         const displaySubject = subjectNames || tutor.keahlian || "-";
 
-        // Get class levels
-        const classNames = [
-          ...new Set(tutorSubjects.map((s) => s.class?.name).filter(Boolean)),
-        ];
+        const classNames = [...new Set(tutorSubjects.map((s) => s.class?.name).filter(Boolean))];
+        const level = classNames.length > 0 ? classNames.join(", ") : tutor.market_siswa ? tutor.market_siswa.toUpperCase() : "-";
 
-        // Fallback: jika tidak ada class, gunakan market_siswa
-        const level =
-          classNames.length > 0
-            ? classNames.join(", ")
-            : tutor.market_siswa
-            ? tutor.market_siswa.toUpperCase()
-            : "-";
-
-        // Parse teaching mode
         const courseMode = tutor.teaching_method?.course_mode || "both";
         const teachingMode = [];
-        if (courseMode === "online" || courseMode === "both")
-          teachingMode.push("online");
-        if (courseMode === "offline" || courseMode === "both")
-          teachingMode.push("offline");
+        if (courseMode === "online" || courseMode === "both") teachingMode.push("online");
+        if (courseMode === "offline" || courseMode === "both") teachingMode.push("offline");
 
-        // Get photo URL - prioritas: profile_photo_url dari backend
         let photo = tutor.profile_photo_url;
         if (!photo) {
-          photo = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            tutor.name || "User"
-          )}&background=2ba9b2&color=fff`;
+          photo = `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.name || "User")}&background=0C447C&color=fff`;
         }
 
-        // Format WhatsApp number
         const whatsapp = tutor.telephone_number || "";
-
-        // Get description - gabungkan berbagai sumber
-        const bio =
-          tutor.tutor_info?.description ||
-          tutor.tutor_info?.pengalaman ||
-          tutor.teaching_method?.description ||
-          "-";
+        const bio = tutor.tutor_info?.description || tutor.tutor_info?.pengalaman || tutor.teaching_method?.description || "-";
 
         return {
           id: tutor.user_id,
@@ -356,41 +268,22 @@ async function loadTutors() {
         };
       });
 
-      // Extract unique subjects for filter dropdown
       const uniqueSubjects = new Set();
       tutorData.forEach((tutor) => {
         if (tutor.subjects && Array.isArray(tutor.subjects)) {
-          tutor.subjects.forEach((s) => {
-            if (s.name) uniqueSubjects.add(s.name);
-          });
+          tutor.subjects.forEach((s) => { if (s.name) uniqueSubjects.add(s.name); });
         }
-        // Juga tambahkan keahlian jika ada
-        if (tutor.keahlian) {
-          uniqueSubjects.add(tutor.keahlian);
-        }
+        if (tutor.keahlian) uniqueSubjects.add(tutor.keahlian);
       });
       subjects.value = Array.from(uniqueSubjects).sort();
 
-      console.log("✅ Successfully mapped", tutors.value.length, "tutors");
-      console.log("First mapped tutor:", tutors.value[0]);
-      console.log("Available subjects for filter:", subjects.value);
     } else {
-      console.warn("No tutors found");
       tutors.value = [];
     }
   } catch (err) {
-    console.error("Error loading tutors:", err);
-    console.error("Error response:", err.response);
-    console.error("Error data:", err.response?.data);
-
     let errorMsg = "Gagal memuat data tutor";
-
-    if (err.response?.status === 500) {
-      errorMsg = "Terjadi kesalahan server. Silakan coba lagi nanti.";
-    } else if (err.response?.data?.message) {
-      errorMsg = err.response.data.message;
-    }
-
+    if (err.response?.status === 500) errorMsg = "Terjadi kesalahan server. Silakan coba lagi nanti.";
+    else if (err.response?.data?.message) errorMsg = err.response.data.message;
     error.value = errorMsg;
     tutors.value = [];
   } finally {
@@ -398,7 +291,6 @@ async function loadTutors() {
   }
 }
 
-// Auto search on query change (debounced)
 let searchTimeout = null;
 watch(searchQuery, () => {
   clearTimeout(searchTimeout);
@@ -407,12 +299,8 @@ watch(searchQuery, () => {
   }, 500);
 });
 
-// Apply filter button
-const applyFilter = () => {
-  loadTutors();
-};
+const applyFilter = () => { loadTutors(); };
 
-// Computed filtered tutors (client-side filtering as fallback)
 const filteredTutors = computed(() => {
   if (!tutors.value) return [];
   return tutors.value;
@@ -423,20 +311,16 @@ const formatPrice = (price) => {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(price || 0);
 };
 
 const waLink = (number) => {
-  // ambil hanya angka & plus, lalu format untuk wa.me
   const n = (number || "").replace(/[^\d+]/g, "");
   const msisdn = n.startsWith("+") ? n.slice(1) : n;
   return `https://wa.me/${msisdn}`;
 };
 
 const goToDetail = (tutor) => {
-  console.log("Navigating to tutor detail with data:", tutor);
-  console.log("Tutor ID being sent:", tutor.id);
-
   router.push({
     path: "/tutors/tutor-detail",
     query: {
@@ -449,50 +333,84 @@ const goToDetail = (tutor) => {
       whatsapp: tutor.whatsapp,
       bio: tutor.bio,
       price: tutor.price,
-      courseMode: tutor.teachingMode.join(","), // Convert array to string
+      courseMode: tutor.teachingMode.join(","),
       level: tutor.level,
     },
   });
 };
 
-// Load tutors on mount
-onMounted(() => {
-  loadTutors();
-});
+onMounted(() => { loadTutors(); });
 </script>
 
 <style scoped>
-.container {
-  max-width: 900px;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+.dashboard-scope {
+  --border: rgba(0,0,0,0.08);
 }
 
-/* Warna utama Lazuardy */
-:root {
-  --primary: #2ba9b2;
-  --primary-dark: #228c92;
-  --secondary: #66d6c3;
-  --secondary-light: #e6f9f7;
+.font-heading { font-family: 'Nunito', sans-serif; }
+.font-body { font-family: 'DM Sans', sans-serif; }
+
+/* ── ANIMASI SHIFT WRAPPER ── */
+@keyframes lz-content-shift {
+  0% {
+    margin-left: 260px;
+    /* Dihapus padding-top karena Spacer di Navbar sudah mengatur ini */
+  }
+  100% {
+    margin-left: 0;
+  }
 }
 
-.bg-primary {
-  background-color: var(--primary);
-}
-.bg-secondary {
-  background-color: var(--secondary);
-}
-.bg-secondary-light {
-  background-color: var(--secondary-light);
-}
-.text-primary {
-  color: var(--primary);
+.lz-main-wrapper {
+  animation: lz-content-shift linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0px 60px;
 }
 
-.filter-select {
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
+@supports not (animation-timeline: scroll()) {
+  .lz-main-wrapper {
+    margin-left: 260px;
+  }
+}
+
+/* COMPONENT: CARD */
+.hifi-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+}
+
+/* COMPONENT: FORM STYLES */
+.form-label {
+  display: block;
+  font-size: 11px;
+  color: #5a6370;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.form-input {
   width: 100%;
-  background-color: white;
-  color: #374151;
+  height: 52px;
+  padding: 0 16px;
+  background-color: #F4F7FB;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a2332;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.form-input:focus {
+  background-color: #ffffff;
+  border-color: #0C447C;
+  box-shadow: 0 0 0 4px rgba(12, 68, 124, 0.1);
 }
 </style>

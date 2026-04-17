@@ -1,564 +1,22 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
-    <!-- Header -->
-    <div class="max-w-3xl mx-auto mb-6">
-      <div class="flex items-center gap-4 mb-4">
-        <button
-          @click="goBack"
-          type="button"
-          class="p-2 hover:bg-gray-100 rounded-lg transition"
-          aria-label="Kembali"
-        >
-          <svg
-            class="w-6 h-6 text-gray-700"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-        <h1 class="text-2xl font-bold text-gray-800">Edit Profil Tutor</h1>
-      </div>
+  <div class="min-h-screen flex flex-col bg-[#EEF2F7] dashboard-scope relative">
+    <div class="relative z-50">
+      <NavbarTutor />
     </div>
 
-    <!-- Form Card -->
-    <div class="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-6 sm:p-8">
-      <!-- Loading State -->
-      <div v-if="isLoading" class="text-center py-12">
-        <div
-          class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#41a6c2] border-t-transparent"
-        ></div>
-        <p class="mt-4 text-gray-600">Memuat data...</p>
-      </div>
-
-      <!-- Form -->
-      <form v-else @submit.prevent="handleSubmit" class="space-y-6">
-        <!-- Foto Profil -->
-        <div class="mb-8">
-          <h3 class="text-xl font-semibold text-[#41a6c2] mb-4 border-b pb-2">
-            Foto Profil
-          </h3>
-          <div class="flex flex-col sm:flex-row items-center gap-6">
-            <!-- Preview Foto -->
-            <div class="relative">
-              <img
-                :src="
-                  photoPreview ||
-                  'https://ui-avatars.com/api/?name=' +
-                    encodeURIComponent(formData.name || 'Tutor') +
-                    '&size=200&background=41a6c2&color=fff'
-                "
-                alt="Profile Photo"
-                class="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md"
-                @error="handlePhotoError"
-              />
-              <button
-                @click="triggerPhotoUpload"
-                type="button"
-                class="absolute bottom-0 right-0 bg-[#41a6c2] hover:bg-[#359299] text-white p-2 rounded-full shadow-lg transition"
-                title="Ubah Foto"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </button>
-              <input
-                ref="photoInput"
-                type="file"
-                accept="image/*"
-                @change="handlePhotoChange"
-                class="hidden"
-              />
-            </div>
-            <!-- Info -->
-            <div class="flex-1 text-center sm:text-left">
-              <p class="text-sm text-gray-600 mb-1">
-                Klik tombol kamera untuk mengubah foto profil
-              </p>
-              <p class="text-xs text-gray-500">
-                Format: JPG, PNG, GIF (Max. 2MB)
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Data Pribadi -->
-        <section>
-          <h3 class="text-xl font-semibold text-[#41a6c2] mb-4 border-b pb-2">
-            Data Pribadi
-          </h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Nama Lengkap</label
-              >
-              <input
-                v-model="formData.name"
-                type="text"
-                :disabled="!canEditName"
-                :class="[
-                  'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent',
-                  !canEditName
-                    ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
-                    : 'border-gray-300',
-                ]"
-                placeholder="Masukkan nama lengkap"
-              />
-              <p v-if="!canEditName" class="text-xs text-red-500 mt-1">
-                {{ nameEditMessage }}
-              </p>
-              <p
-                v-else-if="formData.name !== originalName"
-                class="text-xs text-amber-600 mt-1"
-              >
-                ⚠️ Setelah mengubah nama, Anda tidak dapat mengubahnya lagi
-                selama 7 hari.
-              </p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Email</label
-              >
-              <input
-                v-model="formData.email"
-                type="email"
-                disabled
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-              />
-              <p class="text-xs text-gray-500 mt-1">Email tidak dapat diubah</p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Jenis Kelamin</label
-              >
-              <select
-                v-model="formData.gender"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-              >
-                <option value="">Pilih Jenis Kelamin</option>
-                <option value="pria">Laki-laki</option>
-                <option value="wanita">Perempuan</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Tanggal Lahir</label
-              >
-              <input
-                v-model="formData.date_of_birth"
-                type="date"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >No. Telepon</label
-              >
-              <input
-                v-model="formData.telephone_number"
-                type="tel"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="08xxxxxxxxxx"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Agama</label
-              >
-              <select
-                v-model="formData.religion"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-              >
-                <option value="">Pilih Agama</option>
-                <option value="islam">Islam</option>
-                <option value="kristen">Kristen</option>
-                <option value="katolik">Katolik</option>
-                <option value="hindu">Hindu</option>
-                <option value="buddha">Buddha</option>
-                <option value="konghucu">Konghucu</option>
-              </select>
-            </div>
-          </div>
-        </section>
-
-        <!-- Alamat -->
-        <section>
-          <h3 class="text-xl font-semibold text-[#41a6c2] mb-4 border-b pb-2">
-            Alamat
-          </h3>
-          <div class="space-y-4">
-            <!-- Dropdown Wilayah -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Provinsi</label
-              >
-              <select
-                v-model="selectedWilayah.provinceId"
-                @change="onProvinceChange"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-              >
-                <option value="">Pilih Provinsi</option>
-                <option v-for="p in provinces" :key="p.id" :value="p.id">
-                  {{ p.name }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Kota/Kabupaten</label
-              >
-              <select
-                v-model="selectedWilayah.regencyId"
-                @change="onRegencyChange"
-                :disabled="
-                  !selectedWilayah.provinceId || wilayahLoading.regencies
-                "
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="">Pilih Kota/Kabupaten</option>
-                <option v-for="r in regencies" :key="r.id" :value="r.id">
-                  {{ r.name }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Kecamatan</label
-              >
-              <select
-                v-model="selectedWilayah.districtId"
-                @change="onDistrictChange"
-                :disabled="
-                  !selectedWilayah.regencyId || wilayahLoading.districts
-                "
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="">Pilih Kecamatan</option>
-                <option v-for="d in districts" :key="d.id" :value="d.id">
-                  {{ d.name }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Desa/Kelurahan</label
-              >
-              <select
-                v-model="selectedWilayah.villageId"
-                @change="onVillageChange"
-                :disabled="
-                  !selectedWilayah.districtId || wilayahLoading.villages
-                "
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="">Pilih Desa/Kelurahan</option>
-                <option v-for="v in villages" :key="v.id" :value="v.id">
-                  {{ v.name }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Alamat Lengkap</label
-              >
-              <textarea
-                v-model="formData.street"
-                rows="3"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Masukkan alamat lengkap (Nama jalan, nomor rumah, RT/RW, dll)"
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Location Picker -->
-          <div class="mt-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Pilih Lokasi di Peta
-              <span class="text-xs text-gray-500 ml-2"
-                >(Klik pada peta untuk memilih lokasi)</span
-              >
-            </label>
-            <div
-              class="w-full h-96 bg-gray-200 rounded-lg overflow-hidden relative border-2 border-gray-300"
-            >
-              <!-- Google Maps Iframe dengan mode pencarian -->
-              <iframe
-                :src="mapEmbedUrl"
-                width="100%"
-                height="100%"
-                style="border: 0"
-                allowfullscreen=""
-                loading="lazy"
-                class="w-full h-full"
-              >
-              </iframe>
-
-              <!-- Overlay untuk koordinat yang dipilih -->
-              <div
-                v-if="formData.latitude && formData.longitude"
-                class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg"
-              >
-                <div class="flex items-start justify-between gap-3">
-                  <div class="flex-1">
-                    <p class="text-xs font-medium text-gray-700 mb-1">
-                      Koordinat Terpilih:
-                    </p>
-                    <p class="text-xs text-gray-600">
-                      Lat: {{ Number(formData.latitude).toFixed(6) }}, Lng:
-                      {{ Number(formData.longitude).toFixed(6) }}
-                    </p>
-                  </div>
-                  <button
-                    @click="clearLocation"
-                    type="button"
-                    class="text-red-500 hover:text-red-700 text-xs font-medium"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Manual coordinate input (optional) -->
-            <div class="grid grid-cols-2 gap-4 mt-3">
-              <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1"
-                  >Latitude</label
-                >
-                <input
-                  v-model.number="formData.latitude"
-                  type="number"
-                  step="0.000001"
-                  placeholder="-6.200000"
-                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent outline-none"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1"
-                  >Longitude</label
-                >
-                <input
-                  v-model.number="formData.longitude"
-                  type="number"
-                  step="0.000001"
-                  placeholder="106.816666"
-                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent outline-none"
-                />
-              </div>
-            </div>
-
-            <!-- Search location helper -->
-            <div class="mt-3">
-              <p class="text-xs text-gray-500">
-                💡 Tips: Ketik alamat lengkap di Google Maps, kemudian salin
-                koordinat (klik kanan pada titik lokasi → pilih koordinat untuk
-                menyalin)
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Data Tutor -->
-        <section>
-          <h3 class="text-xl font-semibold text-[#41a6c2] mb-4 border-b pb-2">
-            Data Tutor
-          </h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Keahlian</label
-              >
-              <input
-                v-model="formData.keahlian"
-                type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Contoh: Matematika, Fisika"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Market Siswa</label
-              >
-              <input
-                v-model="formData.marketSiswa"
-                type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Contoh: SD, SMP, SMA"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Pengalaman Mengajar</label
-              >
-              <input
-                v-model="formData.pengalaman"
-                type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Contoh: 5 tahun mengajar Matematika"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Skill Bahasa</label
-              >
-              <input
-                v-model="formData.skillBahasa"
-                type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Contoh: Indonesia, Inggris, Mandarin"
-              />
-            </div>
-            <div class="sm:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Organisasi</label
-              >
-              <input
-                v-model="formData.organisasi"
-                type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Contoh: Himpunan Mahasiswa Matematika"
-              />
-            </div>
-            <div class="sm:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Deskripsi/Tentang Saya</label
-              >
-              <textarea
-                v-model="formData.description"
-                rows="4"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Ceritakan tentang diri Anda sebagai tutor..."
-              ></textarea>
-            </div>
-          </div>
-        </section>
-
-        <!-- Riwayat Pendidikan -->
-        <section>
-          <h3 class="text-xl font-semibold text-[#41a6c2] mb-4 border-b pb-2">
-            Riwayat Pendidikan
-          </h3>
-          <div class="space-y-4">
-            <div
-              v-for="(edu, index) in formData.pendidikan"
-              :key="index"
-              class="bg-gray-50 rounded-lg p-4 relative"
-            >
-              <button
-                @click="removeEducation(index)"
-                type="button"
-                class="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                title="Hapus"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1"
-                    >Tipe</label
-                  >
-                  <select
-                    v-model="edu.type"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                  >
-                    <option value="pendidikan">Pendidikan</option>
-                    <option value="pengalaman">Pengalaman</option>
-                    <option value="organisasi">Organisasi</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1"
-                    >Periode/Tahun</label
-                  >
-                  <input
-                    v-model="edu.period"
-                    type="text"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                    placeholder="Contoh: 2018-2022"
-                  />
-                </div>
-                <div class="sm:col-span-2">
-                  <label class="block text-xs font-medium text-gray-600 mb-1"
-                    >Judul/Gelar/Posisi</label
-                  >
-                  <input
-                    v-model="edu.title"
-                    type="text"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                    placeholder="Contoh: S1 Pendidikan Matematika"
-                  />
-                </div>
-                <div class="sm:col-span-2">
-                  <label class="block text-xs font-medium text-gray-600 mb-1"
-                    >Institusi/Organisasi</label
-                  >
-                  <input
-                    v-model="edu.org"
-                    type="text"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                    placeholder="Contoh: Universitas Indonesia"
-                  />
-                </div>
-                <div class="sm:col-span-2">
-                  <label class="block text-xs font-medium text-gray-600 mb-1"
-                    >Detail/Deskripsi (Opsional)</label
-                  >
-                  <textarea
-                    v-model="edu.detail"
-                    rows="2"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                    placeholder="Deskripsi singkat..."
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            <!-- Add Education Button -->
+    <div class="lz-main-wrapper flex flex-col flex-1">
+      <!-- Header -->
+      <div class="bg-[#0C447C] py-8 px-6">
+        <div class="max-w-3xl mx-auto">
+          <div class="flex items-center gap-4">
             <button
-              @click="addEducation"
+              @click="goBack"
               type="button"
-              class="w-full py-3 border-2 border-dashed border-[#41a6c2] text-[#41a6c2] rounded-lg hover:bg-[#41a6c2]/5 transition flex items-center justify-center gap-2"
+              class="p-2 hover:bg-white/20 rounded-lg transition"
+              aria-label="Kembali"
             >
               <svg
-                class="w-5 h-5"
+                class="w-6 h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -567,97 +25,649 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M12 4v16m8-8H4"
+                  d="M15 19l-7-7 7-7"
                 />
               </svg>
-              Tambah Riwayat Pendidikan/Pengalaman
             </button>
+            <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight font-heading">Edit Profil Tutor</h1>
           </div>
-        </section>
-
-        <!-- Data Bank -->
-        <section>
-          <h3 class="text-xl font-semibold text-[#41a6c2] mb-4 border-b pb-2">
-            Data Bank & Harga
-          </h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Harga Per Pertemuan</label
-              >
-              <div class="relative">
-                <span
-                  class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium"
-                  >Rp</span
-                >
-                <input
-                  v-model="formattedPrice"
-                  @input="handlePriceInput"
-                  type="text"
-                  class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                  placeholder="100.000"
-                />
-              </div>
-              <p class="text-xs text-gray-500 mt-1">
-                Harga yang akan dibayarkan siswa per pertemuan
-              </p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Nama Bank</label
-              >
-              <input
-                v-model="formData.bank_name"
-                type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Contoh: BCA, Mandiri, BNI"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Nomor Rekening</label
-              >
-              <input
-                v-model="formData.bank_account_number"
-                type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="1234567890"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Nama Pemilik Rekening</label
-              >
-              <input
-                v-model="formData.bank_account_name"
-                type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41a6c2] focus:border-transparent"
-                placeholder="Sesuai dengan nama di buku rekening"
-              />
-            </div>
-          </div>
-        </section>
-
-        <!-- Action Buttons -->
-        <div
-          class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t"
-        >
-          <button
-            type="button"
-            @click="goBack"
-            class="w-full sm:w-auto border border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2 rounded-lg font-medium transition"
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            :disabled="isSaving"
-            class="w-full sm:w-auto bg-[#41a6c2] hover:bg-[#359299] text-white px-6 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ isSaving ? "Menyimpan..." : "Simpan Perubahan" }}
-          </button>
         </div>
-      </form>
+      </div>
+
+      <!-- Main Content -->
+      <main class="flex-1 py-8 px-6 md:px-12 max-w-[1040px] w-full mx-auto font-body">
+        <!-- Form Card -->
+        <div class="hifi-card p-6 sm:p-8">
+          <!-- Loading State -->
+          <div v-if="isLoading" class="text-center py-12">
+            <div
+              class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#1a2332]/10 border-t-[#1D9E75]"
+            ></div>
+            <p class="mt-4 text-sm font-medium text-[#5a6370]">Memuat data...</p>
+          </div>
+
+          <!-- Form -->
+          <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+            <!-- Foto Profil -->
+            <div class="mb-8">
+              <h3 class="text-xl font-semibold text-[#1D9E75] mb-4 border-b pb-2">
+                Foto Profil
+              </h3>
+              <div class="flex flex-col sm:flex-row items-center gap-6">
+                <!-- Preview Foto -->
+                <div class="relative">
+                  <img
+                    :src="
+                      photoPreview ||
+                      'https://ui-avatars.com/api/?name=' +
+                        encodeURIComponent(formData.name || 'Tutor') +
+                        '&size=200&background=41a6c2&color=fff'
+                    "
+                    alt="Profile Photo"
+                    class="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md"
+                    @error="handlePhotoError"
+                  />
+                  <button
+                    @click="triggerPhotoUpload"
+                    type="button"
+                    class="absolute bottom-0 right-0 bg-[#1D9E75] hover:bg-[#178a61] text-white p-2 rounded-full shadow-lg transition"
+                    title="Ubah Foto"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    ref="photoInput"
+                    type="file"
+                    accept="image/*"
+                    @change="handlePhotoChange"
+                    class="hidden"
+                  />
+                </div>
+                <!-- Info -->
+                <div class="flex-1 text-center sm:text-left">
+                  <p class="text-sm font-medium text-[#5a6370] mb-1">
+                    Klik tombol kamera untuk mengubah foto profil
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    Format: JPG, PNG, GIF (Max. 2MB)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Pribadi -->
+            <section>
+              <h3 class="text-xl font-semibold text-[#1D9E75] mb-4 border-b pb-2">
+                Data Pribadi
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Nama Lengkap</label
+                  >
+                  <input
+                    v-model="formData.name"
+                    type="text"
+                    :disabled="!canEditName"
+                    :class="[
+                      'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent',
+                      !canEditName
+                        ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
+                        : 'border-gray-300',
+                    ]"
+                    placeholder="Masukkan nama lengkap"
+                  />
+                  <p v-if="!canEditName" class="text-xs text-red-500 mt-1">
+                    {{ nameEditMessage }}
+                  </p>
+                  <p
+                    v-else-if="formData.name !== originalName"
+                    class="text-xs text-amber-600 mt-1"
+                  >
+                    Setelah mengubah nama, Anda tidak dapat mengubahnya lagi selama 7 hari.
+                  </p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Email</label
+                  >
+                  <input
+                    v-model="formData.email"
+                    type="email"
+                    disabled
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                  />
+                  <p class="text-xs text-gray-500 mt-1">Email tidak dapat diubah</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Jenis Kelamin</label
+                  >
+                  <select
+                    v-model="formData.gender"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                  >
+                    <option value="">Pilih Jenis Kelamin</option>
+                    <option value="pria">Laki-laki</option>
+                    <option value="wanita">Perempuan</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Tanggal Lahir</label
+                  >
+                  <input
+                    v-model="formData.date_of_birth"
+                    type="date"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >No. Telepon</label
+                  >
+                  <input
+                    v-model="formData.telephone_number"
+                    type="tel"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="08xxxxxxxxxx"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Agama</label
+                  >
+                  <select
+                    v-model="formData.religion"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                  >
+                    <option value="">Pilih Agama</option>
+                    <option value="islam">Islam</option>
+                    <option value="kristen">Kristen</option>
+                    <option value="katolik">Katolik</option>
+                    <option value="hindu">Hindu</option>
+                    <option value="buddha">Buddha</option>
+                    <option value="konghucu">Konghucu</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <!-- Alamat -->
+            <section>
+              <h3 class="text-xl font-semibold text-[#1D9E75] mb-4 border-b pb-2">
+                Alamat
+              </h3>
+              <div class="space-y-4">
+                <!-- Dropdown Wilayah -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Provinsi</label
+                  >
+                  <select
+                    v-model="selectedWilayah.provinceId"
+                    @change="onProvinceChange"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                  >
+                    <option value="">Pilih Provinsi</option>
+                    <option v-for="p in provinces" :key="p.id" :value="p.id">
+                      {{ p.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Kota/Kabupaten</label
+                  >
+                  <select
+                    v-model="selectedWilayah.regencyId"
+                    @change="onRegencyChange"
+                    :disabled="
+                      !selectedWilayah.provinceId || wilayahLoading.regencies
+                    "
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Pilih Kota/Kabupaten</option>
+                    <option v-for="r in regencies" :key="r.id" :value="r.id">
+                      {{ r.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Kecamatan</label
+                  >
+                  <select
+                    v-model="selectedWilayah.districtId"
+                    @change="onDistrictChange"
+                    :disabled="
+                      !selectedWilayah.regencyId || wilayahLoading.districts
+                    "
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Pilih Kecamatan</option>
+                    <option v-for="d in districts" :key="d.id" :value="d.id">
+                      {{ d.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Desa/Kelurahan</label
+                  >
+                  <select
+                    v-model="selectedWilayah.villageId"
+                    @change="onVillageChange"
+                    :disabled="
+                      !selectedWilayah.districtId || wilayahLoading.villages
+                    "
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Pilih Desa/Kelurahan</option>
+                    <option v-for="v in villages" :key="v.id" :value="v.id">
+                      {{ v.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Alamat Lengkap</label
+                  >
+                  <textarea
+                    v-model="formData.street"
+                    rows="3"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Masukkan alamat lengkap (Nama jalan, nomor rumah, RT/RW, dll)"
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- Location Picker -->
+              <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Pilih Lokasi di Peta
+                  <span class="text-xs text-gray-500 ml-2"
+                    >(Klik pada peta untuk memilih lokasi)</span
+                  >
+                </label>
+                <div
+                  class="w-full h-96 bg-gray-200 rounded-lg overflow-hidden relative border-2 border-gray-300"
+                >
+                  <!-- Google Maps Iframe dengan mode pencarian -->
+                  <iframe
+                    :src="mapEmbedUrl"
+                    width="100%"
+                    height="100%"
+                    style="border: 0"
+                    allowfullscreen=""
+                    loading="lazy"
+                    class="w-full h-full"
+                  >
+                  </iframe>
+
+                  <!-- Overlay untuk koordinat yang dipilih -->
+                  <div
+                    v-if="formData.latitude && formData.longitude"
+                    class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg"
+                  >
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="flex-1">
+                        <p class="text-xs font-medium text-gray-700 mb-1">
+                          Koordinat Terpilih:
+                        </p>
+                        <p class="text-xs text-gray-600">
+                          Lat: {{ Number(formData.latitude).toFixed(6) }}, Lng:
+                          {{ Number(formData.longitude).toFixed(6) }}
+                        </p>
+                      </div>
+                      <button
+                        @click="clearLocation"
+                        type="button"
+                        class="text-red-500 hover:text-red-700 text-xs font-medium"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Manual coordinate input (optional) -->
+                <div class="grid grid-cols-2 gap-4 mt-3">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1"
+                      >Latitude</label
+                    >
+                    <input
+                      v-model.number="formData.latitude"
+                      type="number"
+                      step="0.000001"
+                      placeholder="-6.200000"
+                      class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1"
+                      >Longitude</label
+                    >
+                    <input
+                      v-model.number="formData.longitude"
+                      type="number"
+                      step="0.000001"
+                      placeholder="106.816666"
+                      class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent outline-none"
+                    />
+                  </div>
+                </div>
+
+                <!-- Search location helper -->
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500">
+                    Tips: Ketik alamat lengkap di Google Maps, kemudian salin
+                    koordinat (klik kanan pada titik lokasi pilih koordinat untuk
+                    menyalin)
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Data Tutor -->
+            <section>
+              <h3 class="text-xl font-semibold text-[#1D9E75] mb-4 border-b pb-2">
+                Data Tutor
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Keahlian</label
+                  >
+                  <input
+                    v-model="formData.keahlian"
+                    type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Contoh: Matematika, Fisika"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Market Siswa</label
+                  >
+                  <input
+                    v-model="formData.marketSiswa"
+                    type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Contoh: SD, SMP, SMA"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Pengalaman Mengajar</label
+                  >
+                  <input
+                    v-model="formData.pengalaman"
+                    type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Contoh: 5 tahun mengajar Matematika"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Skill Bahasa</label
+                  >
+                  <input
+                    v-model="formData.skillBahasa"
+                    type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Contoh: Indonesia, Inggris, Mandarin"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Organisasi</label
+                  >
+                  <input
+                    v-model="formData.organisasi"
+                    type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Contoh: Himpunan Mahasiswa Matematika"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Deskripsi/Tentang Saya</label
+                  >
+                  <textarea
+                    v-model="formData.description"
+                    rows="4"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Ceritakan tentang diri Anda sebagai tutor..."
+                  ></textarea>
+                </div>
+              </div>
+            </section>
+
+            <!-- Riwayat Pendidikan -->
+            <section>
+              <h3 class="text-xl font-semibold text-[#1D9E75] mb-4 border-b pb-2">
+                Riwayat Pendidikan
+              </h3>
+              <div class="space-y-4">
+                <div
+                  v-for="(edu, index) in formData.pendidikan"
+                  :key="index"
+                  class="bg-gray-50 rounded-lg p-4 relative"
+                >
+                  <button
+                    @click="removeEducation(index)"
+                    type="button"
+                    class="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                    title="Hapus"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-medium text-gray-600 mb-1"
+                        >Tipe</label
+                      >
+                      <select
+                        v-model="edu.type"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                      >
+                        <option value="pendidikan">Pendidikan</option>
+                        <option value="pengalaman">Pengalaman</option>
+                        <option value="organisasi">Organisasi</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-600 mb-1"
+                        >Periode/Tahun</label
+                      >
+                      <input
+                        v-model="edu.period"
+                        type="text"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                        placeholder="Contoh: 2018-2022"
+                      />
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="block text-xs font-medium text-gray-600 mb-1"
+                        >Judul/Gelar/Posisi</label
+                      >
+                      <input
+                        v-model="edu.title"
+                        type="text"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                        placeholder="Contoh: S1 Pendidikan Matematika"
+                      />
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="block text-xs font-medium text-gray-600 mb-1"
+                        >Institusi/Organisasi</label
+                      >
+                      <input
+                        v-model="edu.org"
+                        type="text"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                        placeholder="Contoh: Universitas Indonesia"
+                      />
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="block text-xs font-medium text-gray-600 mb-1"
+                        >Detail/Deskripsi (Opsional)</label
+                      >
+                      <textarea
+                        v-model="edu.detail"
+                        rows="2"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                        placeholder="Deskripsi singkat..."
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add Education Button -->
+                <button
+                  @click="addEducation"
+                  type="button"
+                  class="w-full py-3 border-2 border-dashed border-[#1D9E75] text-[#1D9E75] rounded-lg hover:bg-[#1D9E75]/5 transition flex items-center justify-center gap-2"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Tambah Riwayat Pendidikan/Pengalaman
+                </button>
+              </div>
+            </section>
+
+            <!-- Data Bank -->
+            <section>
+              <h3 class="text-xl font-semibold text-[#1D9E75] mb-4 border-b pb-2">
+                Data Bank & Harga
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Harga Per Pertemuan</label
+                  >
+                  <div class="relative">
+                    <span
+                      class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium"
+                      >Rp</span
+                    >
+                    <input
+                      v-model="formattedPrice"
+                      @input="handlePriceInput"
+                      type="text"
+                      class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                      placeholder="100.000"
+                    />
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Harga yang akan dibayarkan siswa per pertemuan
+                  </p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Nama Bank</label
+                  >
+                  <input
+                    v-model="formData.bank_name"
+                    type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Contoh: BCA, Mandiri, BNI"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Nomor Rekening</label
+                  >
+                  <input
+                    v-model="formData.bank_account_number"
+                    type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="1234567890"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Nama Pemilik Rekening</label
+                  >
+                  <input
+                    v-model="formData.bank_account_name"
+                    type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+                    placeholder="Sesuai dengan nama di buku rekening"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <div
+              class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t"
+            >
+              <button
+                type="button"
+                @click="goBack"
+                class="w-full sm:w-auto border border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2 rounded-lg font-medium transition"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                :disabled="isSaving"
+                class="w-full sm:w-auto bg-[#1D9E75] hover:bg-[#178a61] text-white px-6 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ isSaving ? "Menyimpan..." : "Simpan Perubahan" }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
     </div>
 
     <!-- Success Toast -->
@@ -686,6 +696,7 @@ import {
   getTutorProfile,
   updateTutorProfile,
 } from "@/services/tutorProfileService";
+import NavbarTutor from "@/components/layout/navbar-tutor.vue";
 
 const router = useRouter();
 
@@ -1242,6 +1253,39 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Sans:wght@400;500;700&display=swap');
+
+.dashboard-scope {
+  --border: rgba(0,0,0,0.08);
+}
+
+.font-heading { font-family: 'Nunito', sans-serif; }
+.font-body { font-family: 'DM Sans', sans-serif; }
+
+@keyframes lz-content-shift {
+  0% { margin-left: 260px; }
+  100% { margin-left: 88px; }
+}
+
+.lz-main-wrapper {
+  animation: lz-content-shift linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0px 60px;
+}
+
+@supports not (animation-timeline: scroll()) {
+  .lz-main-wrapper {
+    margin-left: 260px;
+  }
+}
+
+.hifi-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;

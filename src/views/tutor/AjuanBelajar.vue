@@ -1,111 +1,133 @@
 <template>
-  <div class="min-h-screen bg-white">
-    <NavbarTutor />
-    <!-- MAIN -->
-    <main class="flex-1 py-8 px-6">
-      <!-- Header with Back Button -->
-      <div class="max-w-6xl mx-auto mb-6">
-        <button
-          @click="goBack"
-          class="flex items-center gap-2 text-[#41a6c2] hover:text-[#359299] font-medium mb-4"
-        >
-          <ArrowLeft class="w-5 h-5" />
-          Kembali
-        </button>
+  <div class="min-h-screen flex flex-col bg-[#EEF2F7] dashboard-scope relative">
+    <div class="relative z-50">
+      <NavbarTutor />
+    </div>
 
-        <h1 class="text-3xl font-bold text-[#41a6c2]">Ajuan Belajar</h1>
-      </div>
+    <div class="lz-main-wrapper flex flex-col flex-1">
+      <main class="flex-1 py-8 px-6 md:px-12 max-w-[1040px] w-full mx-auto font-body">
+        <!-- Header with Back Button -->
+        <div class="mb-8">
+          <button
+            @click="goBack"
+            class="flex items-center gap-2 text-[#5a6370] hover:text-[#0C447C] font-bold text-sm mb-6 transition-colors w-fit"
+          >
+            <ArrowLeft class="w-5 h-5" />
+            Kembali ke Dashboard
+          </button>
 
-      <!-- Loading State -->
-      <div v-if="isLoading" class="max-w-6xl mx-auto text-center py-12">
-        <div
-          class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#41a6c2] border-t-transparent"
-        ></div>
-        <p class="mt-4 text-gray-600">Memuat ajuan belajar...</p>
-      </div>
+          <h1 class="text-3xl md:text-4xl font-black text-[#1a2332] tracking-tight font-heading mb-2">
+            Ajuan Belajar
+          </h1>
+          <p class="text-sm font-medium text-[#5a6370]">
+            Daftar permintaan belajar dari siswa yang menunggu konfirmasi Anda
+          </p>
+        </div>
 
-      <!-- Student Request Cards -->
-      <div v-else class="max-w-6xl mx-auto space-y-6">
-        <div
-          v-for="student in students"
-          :key="student.id"
-          class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition"
-        >
-          <div class="flex flex-col md:flex-row gap-6">
-            <!-- Student Photo -->
-            <div class="flex-shrink-0">
-              <img
-                :src="student.photo"
-                :alt="student.name"
-                @error="
-                  (e) =>
-                    (e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      student.name
-                    )}&size=150&background=41a6c2&color=fff&bold=true`)
-                "
-                class="w-24 h-24 rounded-lg object-cover border-2 border-gray-200"
-              />
-            </div>
+        <!-- Loading State -->
+        <div v-if="isLoading" class="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-black/5 shadow-sm">
+          <div class="animate-spin rounded-full h-12 w-12 border-4 border-[#1a2332]/10 border-t-[#1D9E75]"></div>
+          <p class="mt-5 text-xs font-bold text-[#5a6370] uppercase tracking-widest">Memuat ajuan belajar...</p>
+        </div>
 
-            <!-- Student Info -->
-            <div class="flex-1">
-              <h3 class="text-xl font-semibold text-gray-800 mb-2">
-                {{ student.name }}
-              </h3>
+        <!-- Student Request Cards -->
+        <div v-else class="space-y-6">
+          <div
+            v-for="student in students"
+            :key="student.id"
+            class="hifi-card p-6 hover:shadow-lg transition-all"
+          >
+            <div class="flex flex-col md:flex-row gap-6">
+              <!-- Student Photo -->
+              <div class="flex-shrink-0">
+                <img
+                  :src="student.photo"
+                  :alt="student.name"
+                  @error="
+                    (e) =>
+                      (e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        student.name
+                      )}&size=150&background=0C447C&color=fff&bold=true`)
+                  "
+                  class="w-24 h-24 rounded-xl object-cover border-4 border-white shadow-md"
+                />
+              </div>
 
-              <div class="space-y-2 text-sm text-gray-600">
-                <div class="flex items-center gap-2">
-                  <BookOpen class="w-5 h-5 text-[#41a6c2]" />
-                  <span class="font-medium">{{ student.subject }}</span>
-                </div>
+              <!-- Student Info -->
+              <div class="flex-1">
+                <h3 class="text-xl font-black text-[#1a2332] font-heading mb-3">
+                  {{ student.name }}
+                </h3>
 
-                <div class="flex items-center gap-2">
-                  <Calendar class="w-5 h-5 text-[#41a6c2]" />
-                  <span>{{ student.schedule }}</span>
-                </div>
+                <div class="space-y-2.5 text-sm">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 bg-[#E1F5EE] rounded-lg flex items-center justify-center">
+                      <BookOpen class="w-5 h-5 text-[#1D9E75]" />
+                    </div>
+                    <span class="font-bold text-[#1a2332]">{{ student.subject }}</span>
+                  </div>
 
-                <div class="flex items-center gap-2">
-                  <Clock class="w-5 h-5 text-[#41a6c2]" />
-                  <span>{{ student.time }}</span>
-                </div>
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 bg-[#E6F1FB] rounded-lg flex items-center justify-center">
+                      <Calendar class="w-5 h-5 text-[#185FA5]" />
+                    </div>
+                    <span class="font-medium text-[#5a6370]">{{ student.schedule }}</span>
+                  </div>
 
-                <div v-if="student.phone" class="flex items-center gap-2">
-                  <Phone class="w-5 h-5 text-[#41a6c2]" />
-                  <span>{{ student.phone }}</span>
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 bg-[#FAEEDA] rounded-lg flex items-center justify-center">
+                      <Clock class="w-5 h-5 text-[#EF9F27]" />
+                    </div>
+                    <span class="font-medium text-[#5a6370]">{{ student.time }}</span>
+                  </div>
+
+                  <div v-if="student.phone" class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 bg-[#EEF2F7] rounded-lg flex items-center justify-center">
+                      <Phone class="w-5 h-5 text-[#0C447C]" />
+                    </div>
+                    <span class="font-medium text-[#5a6370]">{{ student.phone }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="flex md:flex-col gap-3 justify-end items-end">
-              <button
-                @click="handleReject(student.id)"
-                :disabled="processing === student.id"
-                class="px-6 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ processing === student.id ? "Memproses..." : "Tolak" }}
-              </button>
-              <button
-                @click="handleAccept(student.id)"
-                :disabled="processing === student.id"
-                class="px-6 py-2 bg-[#41a6c2] text-white rounded-lg font-semibold hover:bg-[#359299] transition w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ processing === student.id ? "Memproses..." : "Terima" }}
-              </button>
+              <!-- Action Buttons -->
+              <div class="flex md:flex-col gap-3 justify-end items-end">
+                <button
+                  @click="handleReject(student.id)"
+                  :disabled="processing === student.id"
+                  class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-all w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ processing === student.id ? "Memproses..." : "Tolak" }}
+                </button>
+                <button
+                  @click="handleAccept(student.id)"
+                  :disabled="processing === student.id"
+                  class="px-6 py-3 bg-[#1D9E75] text-white rounded-lg font-bold hover:bg-[#0F6E56] transition-all shadow-md w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ processing === student.id ? "Memproses..." : "Terima" }}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Empty State -->
-        <div
-          v-if="students.length === 0"
-          class="bg-white rounded-2xl shadow-md p-12 text-center"
-        >
-          <Inbox class="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <p class="text-gray-500 text-lg">Belum ada ajuan belajar</p>
+          <!-- Empty State -->
+          <div
+            v-if="students.length === 0"
+            class="hifi-card p-16 text-center"
+          >
+            <div class="w-20 h-20 bg-[#EEF2F7] rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Inbox class="w-10 h-10 text-[#9ba3ab]" />
+            </div>
+            <h3 class="text-xl font-black text-[#1a2332] font-heading mb-2">
+              Belum ada ajuan belajar
+            </h3>
+            <p class="text-sm font-medium text-[#5a6370]">
+              Ajuan belajar dari siswa akan muncul di sini
+            </p>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -188,7 +210,7 @@ const loadLearningRequests = async () => {
           ? schedule.student_photo
           : `https://ui-avatars.com/api/?name=${encodeURIComponent(
               schedule.student_name || "Student"
-            )}&size=150&background=41a6c2&color=fff&bold=true`,
+            )}&size=150&background=0C447C&color=fff&bold=true`,
       subject: schedule.subject_name || "N/A",
       schedule: formatDate(schedule.date),
       time: schedule.schedule_time || "N/A",
@@ -264,5 +286,42 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Additional styles if needed */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Sans:wght@400;500;700&display=swap');
+
+.dashboard-scope {
+  --border: rgba(0,0,0,0.08);
+}
+
+.font-heading { font-family: 'Nunito', sans-serif; }
+.font-body { font-family: 'DM Sans', sans-serif; }
+
+/* ANIMASI SHIFT WRAPPER */
+@keyframes lz-content-shift {
+  0% {
+    margin-left: 260px;
+  }
+  100% {
+    margin-left: 88px;
+  }
+}
+
+.lz-main-wrapper {
+  animation: lz-content-shift linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0px 60px;
+}
+
+@supports not (animation-timeline: scroll()) {
+  .lz-main-wrapper {
+    margin-left: 260px;
+  }
+}
+
+/* HI-FI CARD SYSTEM */
+.hifi-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+}
 </style>
