@@ -265,7 +265,7 @@
                       <span class="icon-[tabler--arrow-right]"></span>
                     </button>
                   </div>
-                  <img src="../assets/img/mint.png" alt="mint" class="intersect-once intersect:motion-preset-slide-down-lg intersect:motion-duration-800 intersect:motion-opacity-in-0 intersect:motion-delay-100 absolute end-[21%] top-0 h-20 max-w-sm max-md:hidden" />
+                  <!-- <img src="../assets/img/mint.png" alt="mint" class="intersect-once intersect:motion-preset-slide-down-lg intersect:motion-duration-800 intersect:motion-opacity-in-0 intersect:motion-delay-100 absolute end-[21%] top-0 h-20 max-w-sm max-md:hidden" /> -->
                   <img src="../assets/img/pizza.png" alt="Decoration" class="rtl:rotate-y-180 absolute end-0 top-0 h-full max-w-md rounded-br-3xl max-md:hidden" />
                 </div>
               </div>
