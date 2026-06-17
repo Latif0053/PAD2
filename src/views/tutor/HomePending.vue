@@ -1246,16 +1246,16 @@ async function fetchTutorProfile() {
       // Jika hanya path (misalnya: tutor/photos/xxx.jpg), buat full URL
       photoUrl = `${API_BASE}/storage/${photoUrl}`;
     }
-    const tutorData = userData.tutor;
-            <a>
-              Lihat File
-            </a>
-        tutor.value.tags = [keahlian];
-        tutor.value.skills = [keahlian];
-      }
+    // const tutorData = userData.tutor;
+    //         // <a>
+    //         //   Lihat File
+    //         // </a>
+    //     tutor.value.tags = [keahlian];
+    //     tutor.value.skills = [keahlian];
+    //   }
 
       // Market siswa
-      if (tutorData.market_siswa || tutorData.student_market) {
+        if (tutorData.market_siswa || tutorData.student_market) {
         const marketSiswa = tutorData.market_siswa || tutorData.student_market;
         tutor.value.tags.push(marketSiswa.toUpperCase());
 
@@ -1263,7 +1263,7 @@ async function fetchTutorProfile() {
         if (!tutor.value.skills.includes(marketSiswa)) {
           tutor.value.skills.push(marketSiswa);
         }
-      }
+      
 
       // Skill bahasa
       if (tutorData.skil_bahasa || tutorData.language_skills) {
