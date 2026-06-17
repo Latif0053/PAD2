@@ -237,7 +237,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/services/api";
 
 const router = useRouter();
 
@@ -293,14 +293,11 @@ const handleReset = async () => {
   loading.value = true;
 
   try {
-    const response = await axios.patch(
-      "http://localhost:8000/api/reset-password",
-      {
-        token: resetToken,
-        password: password.value,
-        password_confirmation: confirmPassword.value,
-      }
-    );
+    const response = await api.patch("/reset-password", {
+      token: resetToken,
+      password: password.value,
+      password_confirmation: confirmPassword.value,
+    });
 
     console.log("Reset password response:", response.data);
 

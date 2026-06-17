@@ -129,7 +129,7 @@ P
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/services/api";
 
 const router = useRouter();
 const email = ref("");
@@ -162,12 +162,9 @@ const handleSend = async () => {
   loading.value = true;
 
   try {
-    const response = await axios.post(
-      "http://localhost:8000/api/forgot-password",
-      {
-        email: email.value,
-      }
-    );
+    const response = await api.post("/forgot-password", {
+      email: email.value,
+    });
 
     console.log("Response:", response.data);
 

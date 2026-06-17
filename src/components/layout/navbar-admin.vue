@@ -47,10 +47,11 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRouter, useRoute } from "vue-router";
-// import { getMe } from "@/services/authService";
+import { useAuthStore } from '@/stores/auth.js';
 
 const router = useRouter();
 const route = useRoute();
+const auth = useAuthStore();
 
 // Scroll state
 const isScrolled = ref(false);
@@ -65,12 +66,7 @@ const handleScroll = () => {
 // Logout handler
 const handleLogout = () => {
   if (confirm("Apakah Anda yakin ingin keluar?")) {
-    // Clear session data
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
-    sessionStorage.clear();
-
-    // Redirect to login
+    auth.logout();
     router.push("/login");
   }
 };

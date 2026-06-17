@@ -140,7 +140,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import axios from "axios";
+import api from "@/services/api";
 
 const router = useRouter();
 const route = useRoute();
@@ -211,13 +211,10 @@ const handleVerify = async () => {
   loading.value = true;
 
   try {
-    const response = await axios.patch(
-      "http://localhost:8000/api/forgot-password/verify",
-      {
-        otp_code: otpCode.value,
-        temp_token: tempToken,
-      }
-    );
+    const response = await api.patch("/forgot-password/verify", {
+      otp_code: otpCode.value,
+      temp_token: tempToken,
+    });
 
     console.log("Verify response:", response.data);
 
@@ -251,12 +248,9 @@ const handleResend = async () => {
   loading.value = true;
 
   try {
-    const response = await axios.post(
-      "http://localhost:8000/api/forgot-password",
-      {
-        email: email.value,
-      }
-    );
+    const response = await api.post("/forgot-password", {
+      email: email.value,
+    });
 
     console.log("Resend response:", response.data);
 

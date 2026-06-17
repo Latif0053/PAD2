@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: PAD2 Lazuardy API
+  version: 1.0.0
+  description: |
+    Dokumentasi API untuk backend Laravel PAD2 Lazuardy.
+
+    Semua endpoint
+menggunakan format response standar:
+
+    - Success:
+      {
+        "status":
+"success",
+        "message": "string",
+        "data": object|null
+      }
+
+    -
+Error:
+      {
+        "status": "error",
+        "message": "string",
+       
+"error": object|string
+      }
+servers:
+  - url: https://api.example.com
+
+# (truncated for brevity; full content saved)

@@ -1,309 +1,416 @@
 <template>
-  <div class="dashboard-admin">
-    <!-- Header -->
+  <div class="min-h-screen bg-[#F4F7FB] text-[#1a2332]">
     <NavbarAdmin />
-    <div class="max-w-6xl mx-auto">
-      <div class="header">
-        <h1 class="title">Dashboard Admin</h1>
-      </div>
 
-      <!-- Statistics Cards -->
-      <div class="stats-grid">
-        <div class="stat-card" v-if="loadingStats">
-          <div class="stat-content">
-            <p class="stat-label">Memuat data...</p>
+    <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div class="flex gap-6">
+        <SidebarAdmin />
+        <div class="flex-1 flex flex-col gap-6">
+      <header class="flex flex-col gap-4 border-b border-black/10 pb-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="text-xs font-black uppercase tracking-[1px] text-[#1D9E75]">Admin Lazuardy</p>
+          <h1 class="mt-1 text-3xl font-black tracking-tight text-[#1a2332] sm:text-4xl">
+            Dashboard Operasional
+          </h1>
+          <p class="mt-2 max-w-2xl text-sm font-medium text-[#5a6370]">
+            {{ todayLabel }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#0C447C] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#07345f] disabled:cursor-not-allowed disabled:opacity-60"
+          :disabled="isRefreshing"
+          @click="loadDashboardData"
+        >
+          <RefreshCw :class="['h-4 w-4', isRefreshing ? 'animate-spin' : '']" />
+          Refresh
+        </button>
+      </header>
+
+      <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article v-for="item in statCards" :key="item.label" class="rounded-lg border border-black/5 bg-white p-5 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-[11px] font-black uppercase tracking-[0.8px] text-[#5a6370]">{{ item.label }}</p>
+              <p class="mt-3 text-3xl font-black text-[#1a2332]">{{ item.value }}</p>
+            </div>
+            <div :class="['flex h-11 w-11 items-center justify-center rounded-lg', item.iconBg]">
+              <component :is="item.icon" class="h-5 w-5" :class="item.iconColor" />
+            </div>
+          </div>
+          <p class="mt-3 text-xs font-semibold text-[#5a6370]">{{ item.caption }}</p>
+        </article>
+      </section>
+
+      <section v-if="loadError" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        {{ loadError }}
+      </section>
+
+      <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          type="button"
+          :class="[
+            'rounded-lg border bg-white p-4 text-left shadow-sm transition',
+            activeTab === tab.key ? 'border-[#1D9E75] ring-2 ring-[#1D9E75]/15' : 'border-black/5 hover:border-[#0C447C]/30',
+          ]"
+          @click="activeTab = tab.key"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2F7]">
+                <component :is="tab.icon" class="h-5 w-5 text-[#0C447C]" />
+              </div>
+              <div>
+                <p class="text-sm font-black text-[#1a2332]">{{ tab.label }}</p>
+                <p class="text-xs font-semibold text-[#5a6370]">{{ tab.caption }}</p>
+              </div>
+            </div>
+            <span class="rounded-md bg-[#E1F5EE] px-2.5 py-1 text-xs font-black text-[#0F6E56]">
+              {{ tab.count }}
+            </span>
+          </div>
+        </button>
+      </section>
+
+      <section class="rounded-lg border border-black/5 bg-white shadow-sm">
+        <div class="flex flex-col gap-3 border-b border-black/5 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-lg font-black text-[#1a2332]">{{ activeTabMeta.label }}</h2>
+            <p class="mt-1 text-xs font-semibold text-[#5a6370]">{{ activeTabMeta.caption }}</p>
+          </div>
+          <div class="relative w-full sm:w-80">
+            <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b8794]" />
+            <input
+              v-model.trim="searchQuery"
+              type="search"
+              class="h-10 w-full rounded-lg border border-black/10 bg-[#F8FAFC] pl-10 pr-3 text-sm font-semibold outline-none transition focus:border-[#0C447C] focus:bg-white"
+              placeholder="Cari data"
+            />
           </div>
         </div>
-        <template v-else>
-          <div class="stat-card">
-            <div class="stat-icon students">
-              <Users />
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Total Siswa</p>
-              <p class="stat-value">{{ stats.totalStudents }}</p>
-            </div>
-          </div>
 
-          <div class="stat-card">
-            <div class="stat-icon tutors">
-              <Users />
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Total Tutor</p>
-              <p class="stat-value">{{ stats.totalTutors }}</p>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon transactions">
-              <DollarSign />
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Transaksi Bulan Ini</p>
-              <p class="stat-value">{{ stats.monthlyTransactions }}</p>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon rating">
-              <Star />
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Rating Rata-rata</p>
-              <p class="stat-value">
-                {{ stats.averageRating }}
-                <Star
-                  :size="28"
-                  fill="#FFD700"
-                  color="#FFD700"
-                  class="star-icon"
-                />
-              </p>
-            </div>
-          </div>
-        </template>
-      </div>
-
-      <!-- Kelola Tutor Card -->
-      <div class="table-section">
-        <div class="section-header">
-          <h2 class="section-title">Kelola Tutor</h2>
-          <router-link to="/admin/kelola-tutor" class="link-selengkapnya">
-            Lihat Selengkapnya →
-          </router-link>
-        </div>
-        <div class="table-wrapper">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nama Tutor</th>
-                <th>Pertemuan</th>
-                <th>Pendapatan</th>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-[#F8FAFC] text-[11px] uppercase tracking-[0.8px] text-[#5a6370]">
+              <tr v-if="activeTab === 'tutors'">
+                <th class="px-5 py-3 font-black">Tutor</th>
+                <th class="px-5 py-3 font-black">Mata Pelajaran</th>
+                <th class="px-5 py-3 font-black">Status</th>
+                <th class="px-5 py-3 font-black">Tanggal</th>
+                <th class="px-5 py-3 text-right font-black">Aksi</th>
+              </tr>
+              <tr v-else-if="activeTab === 'students'">
+                <th class="px-5 py-3 font-black">Siswa</th>
+                <th class="px-5 py-3 font-black">Paket</th>
+                <th class="px-5 py-3 font-black">Nominal</th>
+                <th class="px-5 py-3 font-black">Status</th>
+                <th class="px-5 py-3 text-right font-black">Aksi</th>
+              </tr>
+              <tr v-else>
+                <th class="px-5 py-3 font-black">Tutor</th>
+                <th class="px-5 py-3 font-black">Pertemuan</th>
+                <th class="px-5 py-3 font-black">Total Gaji</th>
+                <th class="px-5 py-3 font-black">Status</th>
+                <th class="px-5 py-3 text-right font-black">Aksi</th>
               </tr>
             </thead>
-            <tbody>
-              <tr v-if="loadingTutorManagement">
-                <td colspan="3" class="empty-state">Memuat data...</td>
+
+            <tbody class="divide-y divide-black/5">
+              <tr v-if="activeLoading">
+                <td :colspan="5" class="px-5 py-12 text-center">
+                  <div class="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-[#1D9E75] border-t-transparent"></div>
+                  <p class="mt-3 text-sm font-semibold text-[#5a6370]">Memuat data...</p>
+                </td>
               </tr>
-              <tr v-else-if="tutorManagementList.length === 0">
-                <td colspan="3" class="empty-state">Tidak ada data tutor</td>
+
+              <tr v-else-if="filteredRows.length === 0">
+                <td :colspan="5" class="px-5 py-12 text-center text-sm font-semibold text-[#7b8794]">
+                  Belum ada data untuk ditampilkan.
+                </td>
               </tr>
-              <tr v-else v-for="tutor in tutorManagementList" :key="tutor.id">
-                <td>{{ tutor.name }}</td>
-                <td>{{ tutor.meetings }}</td>
-                <td>{{ formatCurrency(tutor.earnings) }}</td>
+
+              <tr v-else v-for="row in filteredRows" :key="`${activeTab}-${getRowId(row)}`" class="hover:bg-[#F8FAFC]">
+                <template v-if="activeTab === 'tutors'">
+                  <td class="px-5 py-4">
+                    <p class="font-black text-[#1a2332]">{{ getName(row, "Tutor") }}</p>
+                    <p class="mt-0.5 text-xs font-semibold text-[#7b8794]">{{ row.email || row.user?.email || "-" }}</p>
+                  </td>
+                  <td class="px-5 py-4 font-semibold text-[#5a6370]">{{ row.subject || row.keahlian || row.subject_name || "-" }}</td>
+                  <td class="px-5 py-4"><StatusBadge :status="getStatus(row)" /></td>
+                  <td class="px-5 py-4 font-semibold text-[#5a6370]">{{ formatDate(row.created_at || row.updated_at) }}</td>
+                  <td class="px-5 py-4">
+                    <div class="flex justify-end gap-2">
+                      <IconButton label="Detail" @click="viewTutorDetail(getRowId(row))"><Eye class="h-4 w-4" /></IconButton>
+                      <IconButton label="Setujui" tone="success" @click="approveTutorRow(row)"><Check class="h-4 w-4" /></IconButton>
+                      <IconButton label="Tolak" tone="danger" @click="rejectTutorRow(row)"><X class="h-4 w-4" /></IconButton>
+                    </div>
+                  </td>
+                </template>
+
+                <template v-else-if="activeTab === 'students'">
+                  <td class="px-5 py-4">
+                    <p class="font-black text-[#1a2332]">{{ getName(row, "Siswa") }}</p>
+                    <p class="mt-0.5 text-xs font-semibold text-[#7b8794]">{{ row.email || row.user?.email || "-" }}</p>
+                  </td>
+                  <td class="px-5 py-4 font-semibold text-[#5a6370]">{{ row.package || row.package_name || row.paket || "-" }}</td>
+                  <td class="px-5 py-4 font-black text-[#1a2332]">{{ formatCurrency(row.amount || row.total || row.price) }}</td>
+                  <td class="px-5 py-4"><StatusBadge :status="getStatus(row)" /></td>
+                  <td class="px-5 py-4">
+                    <div class="flex justify-end gap-2">
+                      <IconButton label="Detail" @click="viewPaymentDetail(getRowId(row))"><Eye class="h-4 w-4" /></IconButton>
+                      <IconButton label="Verifikasi" tone="success" @click="verifyPaymentRow(row)"><Check class="h-4 w-4" /></IconButton>
+                      <IconButton label="Tolak" tone="danger" @click="rejectPaymentRow(row)"><X class="h-4 w-4" /></IconButton>
+                    </div>
+                  </td>
+                </template>
+
+                <template v-else>
+                  <td class="px-5 py-4">
+                    <p class="font-black text-[#1a2332]">{{ getName(row, "Tutor") }}</p>
+                    <p class="mt-0.5 text-xs font-semibold text-[#7b8794]">{{ row.email || row.user?.email || "-" }}</p>
+                  </td>
+                  <td class="px-5 py-4 font-semibold text-[#5a6370]">{{ row.meetings || row.total_meetings || row.totalSessions || 0 }}</td>
+                  <td class="px-5 py-4 font-black text-[#1a2332]">{{ formatCurrency(row.earnings || row.total_salary || row.amount) }}</td>
+                  <td class="px-5 py-4"><StatusBadge :status="getStatus(row)" /></td>
+                  <td class="px-5 py-4">
+                    <div class="flex justify-end gap-2">
+                      <IconButton label="Detail" @click="viewSalaryDetail(getRowId(row))"><Eye class="h-4 w-4" /></IconButton>
+                      <IconButton label="Konfirmasi" tone="success" @click="confirmSalaryRow(row)"><Check class="h-4 w-4" /></IconButton>
+                    </div>
+                  </td>
+                </template>
               </tr>
             </tbody>
           </table>
         </div>
-      </div>
-
-      <!-- Verifikasi Tutor -->
-      <div class="table-section">
-        <div class="section-header">
-          <h2 class="section-title">Verifikasi Tutor</h2>
-        </div>
-        <div class="table-wrapper">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nama Tutor</th>
-                <th>Mata Pelajaran</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="loadingTutors">
-                <td colspan="4" class="empty-state">Memuat data...</td>
-              </tr>
-              <tr v-else-if="tutorVerifications.length === 0">
-                <td colspan="4" class="empty-state">
-                  Tidak ada data verifikasi tutor
-                </td>
-              </tr>
-              <tr v-else v-for="tutor in tutorVerifications" :key="tutor.id">
-                <td>{{ tutor.name }}</td>
-                <td>{{ tutor.subject }}</td>
-                <td>
-                  <span :class="['status-badge', tutor.status.toLowerCase()]">
-                    {{ tutor.status }}
-                  </span>
-                </td>
-                <td>
-                  <div class="action-buttons">
-                    <button
-                      @click="viewTutorDetail(tutor.id)"
-                      class="btn-action btn-detail"
-                    >
-                      Cek Data
-                    </button>
-                    <button
-                      v-if="
-                        tutor.status &&
-                        tutor.status.toLowerCase().includes('menunggu')
-                      "
-                      @click="approveTutor(tutor.id)"
-                      class="btn-action btn-approve"
-                    >
-                      Setujui
-                    </button>
-                    <button
-                      v-if="
-                        tutor.status &&
-                        tutor.status.toLowerCase().includes('menunggu')
-                      "
-                      @click="rejectTutor(tutor.id)"
-                      class="btn-action btn-reject"
-                    >
-                      Tolak
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      </section>
         </div>
       </div>
-
-      <!-- Verifikasi Pembayaran -->
-      <div class="table-section">
-        <div class="section-header">
-          <h2 class="section-title">Verifikasi Pembayaran</h2>
-        </div>
-        <div class="table-wrapper">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nama Siswa</th>
-                <th>Paket</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="loadingPayments">
-                <td colspan="4" class="empty-state">Memuat data...</td>
-              </tr>
-              <tr v-else-if="paymentVerifications.length === 0">
-                <td colspan="4" class="empty-state">
-                  Tidak ada data verifikasi pembayaran
-                </td>
-              </tr>
-              <tr
-                v-else
-                v-for="payment in paymentVerifications"
-                :key="payment.id"
-              >
-                <td>{{ payment.studentName }}</td>
-                <td>{{ payment.package }}</td>
-                <td>
-                  <span :class="['status-badge', payment.status.toLowerCase()]">
-                    {{ payment.status }}
-                  </span>
-                </td>
-                <td>
-                  <div class="action-buttons">
-                    <button
-                      @click="viewPaymentDetail(payment.id)"
-                      class="btn-action btn-detail"
-                    >
-                      Cek Data
-                    </button>
-                    <button
-                      v-if="
-                        payment.status &&
-                        payment.status.toLowerCase().includes('menunggu')
-                      "
-                      @click="verifyPayment(payment.id)"
-                      class="btn-action btn-approve"
-                    >
-                      Verifikasi
-                    </button>
-                    <button
-                      v-if="
-                        payment.status &&
-                        payment.status.toLowerCase().includes('menunggu')
-                      "
-                      @click="rejectPayment(payment.id)"
-                      class="btn-action btn-reject"
-                    >
-                      Tolak
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed, defineComponent, h, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import NavbarAdmin from "@/components/layout/navbar-admin.vue";
-import { Users } from "lucide-vue-next";
-import { DollarSign } from "lucide-vue-next";
-import { Star } from "lucide-vue-next";
 import {
-  getAdminStatistics,
-  getPendingTutors,
-  getPendingPayments,
+  Banknote,
+  Check,
+  DollarSign,
+  Eye,
+  GraduationCap,
+  RefreshCw,
+  Search,
+  Star,
+  Users,
+  WalletCards,
+  X,
+} from "lucide-vue-next";
+import NavbarAdmin from "@/components/layout/navbar-admin.vue";
+import SidebarAdmin from "@/components/layout/sidebar-admin.vue";
+import { useAuthStore } from '@/stores/auth.js';
+import {
   approveTutor as approveUserTutor,
+  confirmTutorSalary,
+  getAdminStatistics,
+  getPendingPayments,
+  getPendingTutors,
+  getTutorManagementSummary,
+  rejectPayment as rejectUserPayment,
   rejectTutor as rejectUserTutor,
   verifyPayment as verifyUserPayment,
-  rejectPayment as rejectUserPayment,
-  getTutorManagementSummary,
 } from "@/services/adminDashboardService";
 
 const router = useRouter();
 
-// Statistics data
-const stats = ref({
-  totalStudents: 0,
-  totalTutors: 0,
-  monthlyTransactions: 0,
-  averageRating: 0,
+const stats = ref({});
+const tutorVerifications = ref([]);
+const paymentVerifications = ref([]);
+const tutorSalaryList = ref([]);
+const activeTab = ref("tutors");
+const searchQuery = ref("");
+const loadError = ref("");
+const isRefreshing = ref(false);
+const loading = ref({
+  stats: false,
+  tutors: false,
+  students: false,
+  salaries: false,
 });
 
-// Loading states
-const loadingStats = ref(false);
-const loadingTutors = ref(false);
-const loadingPayments = ref(false);
-const loadingTutorManagement = ref(false);
+const todayLabel = new Intl.DateTimeFormat("id-ID", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(new Date());
 
-// Tutor verification data
-const tutorVerifications = ref([]);
+const IconButton = defineComponent({
+  props: {
+    label: { type: String, required: true },
+    tone: { type: String, default: "default" },
+  },
+  setup(props, { slots, emit }) {
+    const toneClass = computed(() => {
+      if (props.tone === "success") return "bg-[#E1F5EE] text-[#0F6E56] hover:bg-[#1D9E75] hover:text-white";
+      if (props.tone === "danger") return "bg-red-50 text-red-700 hover:bg-red-600 hover:text-white";
+      return "bg-[#EEF2F7] text-[#0C447C] hover:bg-[#0C447C] hover:text-white";
+    });
 
-// Payment verification data
-const paymentVerifications = ref([]);
+    return () =>
+      h(
+        "button",
+        {
+          type: "button",
+          title: props.label,
+          "aria-label": props.label,
+          class: [
+            "inline-flex h-9 w-9 items-center justify-center rounded-lg transition",
+            toneClass.value,
+          ],
+          onClick: (event) => emit("click", event),
+        },
+        slots.default?.()
+      );
+  },
+});
 
-// Tutor management data
-const tutorManagementList = ref([]);
+const StatusBadge = defineComponent({
+  props: {
+    status: { type: String, default: "-" },
+  },
+  setup(props) {
+    const badgeClass = computed(() => {
+      const status = props.status.toLowerCase();
+      if (status.includes("pending") || status.includes("menunggu") || status.includes("verify")) {
+        return "bg-[#FAEEDA] text-[#7A4D04]";
+      }
+      if (status.includes("reject") || status.includes("tolak")) {
+        return "bg-red-50 text-red-700";
+      }
+      if (status.includes("paid") || status.includes("active") || status.includes("setuju") || status.includes("terverifikasi")) {
+        return "bg-[#E1F5EE] text-[#0F6E56]";
+      }
+      return "bg-[#EEF2F7] text-[#5a6370]";
+    });
 
-// Load dashboard data
+    return () =>
+      h(
+        "span",
+        {
+          class: [
+            "inline-flex rounded-md px-2.5 py-1 text-xs font-black uppercase tracking-[0.5px]",
+            badgeClass.value,
+          ],
+        },
+        props.status || "-"
+      );
+  },
+});
+
+const normalizeList = (value) => {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.data?.data)) return value.data.data;
+  return [];
+};
+
+const getMetric = (...keys) => {
+  for (const key of keys) {
+    const value = stats.value?.[key] ?? stats.value?.data?.[key];
+    if (value !== undefined && value !== null) return value;
+  }
+  return 0;
+};
+
+const statCards = computed(() => [
+  {
+    label: "Total Siswa",
+    value: formatNumber(getMetric("totalStudents", "total_students", "students")),
+    caption: `${paymentVerifications.value.length} data pembayaran`,
+    icon: GraduationCap,
+    iconBg: "bg-[#E1F5EE]",
+    iconColor: "text-[#0F6E56]",
+  },
+  {
+    label: "Total Tutor",
+    value: formatNumber(getMetric("totalTutors", "total_tutors", "tutors")),
+    caption: `${tutorVerifications.value.length} menunggu verifikasi`,
+    icon: Users,
+    iconBg: "bg-[#E6F1FB]",
+    iconColor: "text-[#0C447C]",
+  },
+  {
+    label: "Transaksi Bulan Ini",
+    value: formatCurrency(getMetric("monthlyTransactions", "monthly_transactions", "transaction_this_month")),
+    caption: "Akumulasi pembayaran siswa",
+    icon: DollarSign,
+    iconBg: "bg-[#FAEEDA]",
+    iconColor: "text-[#7A4D04]",
+  },
+  {
+    label: "Rating Rata-rata",
+    value: Number(getMetric("averageRating", "average_rating", "rating") || 0).toFixed(1),
+    caption: `${tutorSalaryList.value.length} data gaji tutor`,
+    icon: Star,
+    iconBg: "bg-[#FEF3C7]",
+    iconColor: "text-[#B45309]",
+  },
+]);
+
+const tabs = computed(() => [
+  {
+    key: "tutors",
+    label: "Verifikasi Tutor",
+    caption: "Akun tutor yang perlu ditinjau",
+    count: tutorVerifications.value.length,
+    icon: Users,
+  },
+  {
+    key: "students",
+    label: "Pembayaran Siswa",
+    caption: "Data pembayaran dan paket siswa",
+    count: paymentVerifications.value.length,
+    icon: WalletCards,
+  },
+  {
+    key: "salaries",
+    label: "Gaji Tutor",
+    caption: "Rekap dan konfirmasi honor tutor",
+    count: tutorSalaryList.value.length,
+    icon: Banknote,
+  },
+]);
+
+const activeTabMeta = computed(() => tabs.value.find((tab) => tab.key === activeTab.value) || tabs.value[0]);
+const activeLoading = computed(() => loading.value[activeTab.value]);
+const activeRows = computed(() => {
+  if (activeTab.value === "tutors") return tutorVerifications.value;
+  if (activeTab.value === "students") return paymentVerifications.value;
+  return tutorSalaryList.value;
+});
+
+const filteredRows = computed(() => {
+  const query = searchQuery.value.toLowerCase();
+  if (!query) return activeRows.value;
+  return activeRows.value.filter((row) => JSON.stringify(row).toLowerCase().includes(query));
+});
+
 onMounted(() => {
-  console.log("Dashboard mounted, loading data...");
-  // Check if user is authenticated
-  const token = localStorage.getItem("auth_token");
-  const user = JSON.parse(localStorage.getItem("auth_user") || "{}");
-  console.log("Auth token:", token ? "Present" : "Missing");
-  console.log("User role:", user?.role);
+  const auth = useAuthStore();
+  if (!auth.initialized) auth.loadFromStorage();
 
-  if (!token) {
-    console.error("No auth token found, redirecting to login");
-    router.push("/login");
+  if (!auth.token || !auth.user) {
+    router.push('/login');
     return;
   }
 
-  if (user?.role !== "admin") {
-    console.error("User is not admin, role:", user?.role);
-    alert("Anda tidak memiliki akses ke halaman ini");
-    router.push("/");
+  if (!auth.isAdmin) {
+    router.push('/');
     return;
   }
 
@@ -311,486 +418,116 @@ onMounted(() => {
 });
 
 const loadDashboardData = async () => {
-  console.log("Starting to load dashboard data...");
-  await Promise.all([
-    loadStatistics(),
-    loadPendingTutors(),
-    loadPendingPayments(),
-    loadTutorManagement(),
-  ]);
-  console.log("Dashboard data loading complete");
+  loadError.value = "";
+  isRefreshing.value = true;
+  await Promise.all([loadStatistics(), loadPendingTutors(), loadPendingPayments(), loadTutorSalaries()]);
+  isRefreshing.value = false;
 };
 
-// Load statistics
 const loadStatistics = async () => {
-  loadingStats.value = true;
+  loading.value.stats = true;
   try {
-    const data = await getAdminStatistics();
-    console.log("Statistics data:", data); // Debug
-    stats.value = {
-      totalStudents: data.totalStudents || 0,
-      totalTutors: data.totalTutors || 0,
-      monthlyTransactions: data.monthlyTransactions || 0,
-      averageRating: data.averageRating || 0,
-    };
+    stats.value = await getAdminStatistics();
   } catch (error) {
-    console.error("Error loading statistics:", error);
-    // Don't show alert on error, just log it
+    loadError.value = "Gagal memuat analytics admin.";
+    stats.value = {};
   } finally {
-    loadingStats.value = false;
+    loading.value.stats = false;
   }
 };
 
-// Load pending tutors
 const loadPendingTutors = async () => {
-  loadingTutors.value = true;
+  loading.value.tutors = true;
   try {
-    const data = await getPendingTutors();
-    tutorVerifications.value = data;
-  } catch (error) {
-    console.error("Error loading pending tutors:", error);
-    tutorVerifications.value = [];
+    tutorVerifications.value = normalizeList(await getPendingTutors());
   } finally {
-    loadingTutors.value = false;
+    loading.value.tutors = false;
   }
 };
 
-// Load pending payments
 const loadPendingPayments = async () => {
-  loadingPayments.value = true;
+  loading.value.students = true;
   try {
-    const data = await getPendingPayments();
-    paymentVerifications.value = data;
-  } catch (error) {
-    console.error("Error loading pending payments:", error);
-    paymentVerifications.value = [];
+    paymentVerifications.value = normalizeList(await getPendingPayments());
   } finally {
-    loadingPayments.value = false;
+    loading.value.students = false;
   }
 };
 
-// Load tutor management data
-const loadTutorManagement = async () => {
-  loadingTutorManagement.value = true;
+const loadTutorSalaries = async () => {
+  loading.value.salaries = true;
   try {
-    const data = await getTutorManagementSummary();
-    tutorManagementList.value = data;
-  } catch (error) {
-    console.error("Error loading tutor management:", error);
-    tutorManagementList.value = [];
+    tutorSalaryList.value = normalizeList(await getTutorManagementSummary());
   } finally {
-    loadingTutorManagement.value = false;
+    loading.value.salaries = false;
   }
 };
 
-// Format currency helper
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("id-ID", {
+const getRowId = (row) => row?.id || row?.user_id || row?.userId || row?.tutor_id || row?.student_id;
+
+const getName = (row, fallback) =>
+  row?.name ||
+  row?.studentName ||
+  row?.student_name ||
+  row?.tutorName ||
+  row?.tutor_name ||
+  row?.user?.name ||
+  fallback;
+
+const getStatus = (row) => String(row?.status || row?.payment_status || row?.verification_status || row?.tutor_status || "-");
+
+const formatNumber = (value) => new Intl.NumberFormat("id-ID").format(Number(value || 0));
+
+const formatCurrency = (value) =>
+  new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
+
+const formatDate = (value) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 };
 
-// Tutor verification actions
-const viewTutorDetail = (tutorId) => {
-  router.push(`/admin/data-tutor?id=${tutorId}`);
+const viewTutorDetail = (id) => router.push(`/admin/data-tutor?id=${id}`);
+const viewPaymentDetail = (id) => router.push(`/admin/data-siswa?id=${id}`);
+const viewSalaryDetail = (id) => router.push(`/admin/kelola-tutor/${id}`);
+
+const approveTutorRow = async (row) => {
+  if (!confirm(`Setujui tutor ${getName(row, "")}?`)) return;
+  await approveUserTutor(getRowId(row));
+  await loadPendingTutors();
 };
 
-const approveTutor = async (tutorId) => {
-  if (confirm("Apakah Anda yakin ingin menyetujui tutor ini?")) {
-    try {
-      await approveUserTutor(tutorId);
-      alert("Tutor berhasil disetujui!");
-      // Reload data
-      await loadPendingTutors();
-    } catch (error) {
-      console.error("Error approving tutor:", error);
-      alert(
-        error?.response?.data?.message ||
-          "Gagal menyetujui tutor. Silakan coba lagi."
-      );
-    }
-  }
+const rejectTutorRow = async (row) => {
+  const reason = prompt(`Alasan penolakan tutor ${getName(row, "")}:`, "");
+  if (reason === null) return;
+  await rejectUserTutor(getRowId(row), reason);
+  await loadPendingTutors();
 };
 
-const rejectTutor = async (tutorId) => {
-  if (confirm("Apakah Anda yakin ingin menolak tutor ini?")) {
-    try {
-      await rejectUserTutor(tutorId);
-      alert("Tutor berhasil ditolak!");
-      // Reload data
-      await loadPendingTutors();
-    } catch (error) {
-      console.error("Error rejecting tutor:", error);
-      alert(
-        error?.response?.data?.message ||
-          "Gagal menolak tutor. Silakan coba lagi."
-      );
-    }
-  }
+const verifyPaymentRow = async (row) => {
+  if (!confirm(`Verifikasi pembayaran ${getName(row, "")}?`)) return;
+  await verifyUserPayment(getRowId(row));
+  await loadPendingPayments();
 };
 
-// Payment verification actions
-const viewPaymentDetail = (paymentId) => {
-  router.push(`/admin/data-siswa?id=${paymentId}`);
+const rejectPaymentRow = async (row) => {
+  if (!confirm(`Tolak pembayaran ${getName(row, "")}?`)) return;
+  await rejectUserPayment(getRowId(row));
+  await loadPendingPayments();
 };
 
-const verifyPayment = async (paymentId) => {
-  if (confirm("Apakah Anda yakin ingin memverifikasi pembayaran ini?")) {
-    try {
-      await verifyUserPayment(paymentId);
-      alert("Pembayaran berhasil diverifikasi!");
-      // Reload data
-      await loadPendingPayments();
-    } catch (error) {
-      console.error("Error verifying payment:", error);
-      alert(
-        error?.response?.data?.message ||
-          "Gagal memverifikasi pembayaran. Silakan coba lagi."
-      );
-    }
-  }
-};
-
-const rejectPayment = async (paymentId) => {
-  if (confirm("Apakah Anda yakin ingin menolak pembayaran ini?")) {
-    try {
-      await rejectUserPayment(paymentId);
-      alert("Pembayaran berhasil ditolak!");
-      // Reload data
-      await loadPendingPayments();
-    } catch (error) {
-      console.error("Error rejecting payment:", error);
-      alert(
-        error?.response?.data?.message ||
-          "Gagal menolak pembayaran. Silakan coba lagi."
-      );
-    }
-  }
-};
-
-const handleLogout = () => {
-  if (confirm("Apakah Anda yakin ingin keluar?")) {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
-    router.push("/auth/login");
-  }
+const confirmSalaryRow = async (row) => {
+  if (!confirm(`Konfirmasi pembayaran gaji ${getName(row, "")}?`)) return;
+  await confirmTutorSalary(getRowId(row));
+  await loadTutorSalaries();
 };
 </script>
-
-<style scoped>
-.dashboard-admin {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #e3f2f7 0%, #f0f9fc 100%);
-  padding: 2rem;
-}
-
-/* Header */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.btn-logout {
-  background: #41a6c2;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-  background: #358a9f;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(65, 166, 194, 0.3);
-}
-
-/* Statistics Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(65, 166, 194, 0.2);
-}
-
-.stat-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.stat-icon.students {
-  background: linear-gradient(135deg, #41a6c2 0%, #5cb3cc 100%);
-}
-
-.stat-icon.tutors {
-  background: linear-gradient(135deg, #41a6c2 0%, #5cb3cc 100%);
-}
-
-.stat-icon.transactions {
-  background: linear-gradient(135deg, #41a6c2 0%, #5cb3cc 100%);
-}
-
-.stat-icon.rating {
-  background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #718096;
-  margin-bottom: 0.25rem;
-}
-
-.stat-value {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #2c3e50;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.star-icon {
-  flex-shrink: 0;
-}
-
-/* Table Section */
-.table-section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.section-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #41a6c2;
-  margin: 0;
-}
-
-.link-selengkapnya {
-  color: #41a6c2;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: color 0.2s ease;
-}
-
-.link-selengkapnya:hover {
-  color: #358a9f;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table thead {
-  background: #41a6c2;
-  color: white;
-}
-
-.data-table th {
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.data-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.data-table tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-.data-table tbody tr:hover {
-  background-color: #f7fafc;
-}
-
-.empty-state {
-  text-align: center;
-  color: #a0aec0;
-  padding: 2rem !important;
-  font-style: italic;
-}
-
-/* Status Badge */
-.status-badge {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.status-badge.menunggu {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status-badge.disetujui,
-.status-badge.terverifikasi {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.status-badge.ditolak {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.btn-action {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-detail {
-  background: #41a6c2;
-  color: white;
-}
-
-.btn-detail:hover {
-  background: #358a9f;
-}
-
-.btn-approve {
-  background: #10b981;
-  color: white;
-}
-
-.btn-approve:hover {
-  background: #059669;
-}
-
-.btn-reject {
-  background: #ef4444;
-  color: white;
-}
-
-.btn-reject:hover {
-  background: #dc2626;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .dashboard-admin {
-    padding: 1rem;
-  }
-
-  .title {
-    font-size: 1.5rem;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stat-card {
-    padding: 1rem;
-  }
-
-  .stat-icon {
-    width: 48px;
-    height: 48px;
-  }
-
-  .stat-icon svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-  }
-
-  .table-section {
-    padding: 1rem;
-  }
-
-  .section-title {
-    font-size: 1.25rem;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .btn-action {
-    width: 100%;
-  }
-}
-</style>

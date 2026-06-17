@@ -127,6 +127,7 @@ import { useRouter } from "vue-router";
 import Navbar from "@/components/layout/navbar.vue";
 import { getStudentDashboard } from "@/services/studentDashboardService";
 import { getPaymentHistory } from "@/services/paymentService";
+import { API_BASE } from "@/services/http";
 
 const router = useRouter();
 const isLoading = ref(true);
@@ -202,7 +203,7 @@ const getPackageStatusText = (status) => {
 
 const getProofUrl = (proofPath) => {
   if (!proofPath) return "";
-  return `http://localhost:8000/storage/${proofPath}`;
+  return `${API_BASE}/storage/${proofPath}`;
 };
 
 const loadPaymentHistory = async () => {

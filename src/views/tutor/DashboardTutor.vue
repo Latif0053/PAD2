@@ -299,7 +299,7 @@ const totalStudents = computed(() => summaryData.value?.total_students || 0);
 const sessionsThisMonth = computed(
   () => summaryData.value?.completed_sessions_this_month || 0
 );
-const laporanTerkirim = ref(0); // Dummy - sesuai permintaan user
+const laporanTerkirim = computed(() => summaryData.value?.submitted_reports || 0);
 
 // Computed untuk daftar ajuan belajar (active schedules dari siswa)
 const learningRequests = computed(() => {

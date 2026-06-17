@@ -74,7 +74,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/services/api";
 
 const OTP_LENGTH = 4;
 
@@ -190,8 +190,8 @@ async function handleVerify() {
 
   try {
     // Kirim OTP ke backend
-    const response = await axios.post(
-      "http://localhost:8000/api/auth/social/verify-otp",
+    const response = await api.post(
+      "/auth/social/verify-otp",
       {
         otp: otpCode.value,
       },
@@ -252,8 +252,8 @@ async function handleResendOtp() {
   successMessage.value = "";
 
   try {
-    const response = await axios.post(
-      "http://localhost:8000/api/auth/social/resend-otp",
+    const response = await api.post(
+      "/auth/social/resend-otp",
       {},
       {
         headers: {

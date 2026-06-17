@@ -1134,23 +1134,36 @@ async function processBooking() {
   console.log("Sending payload:", payload);
   console.log("Selected slot:", selectedSlot.value);
 
-  try {
+    try {
     isProcessingBooking.value = true;
 
-    // Kirim request ke backend API
-    const response = await api.post("/bookings", payload);
+    // If schedule_id is available, prefer the documented endpoint /student/request
+    let response;
+    if (selectedSlot.value?.schedule_id) {
+      const authUser = JSON.parse(localStorage.getItem("auth_user") || "{}");
+      const address =
+        authUser.home_address?.street || authUser.street || authUser.address || "";
+      response = await api.post("/student/request", {
+        schedule_id: selectedSlot.value.schedule_id,
+        address,
+      });
+    } else {
+      // Fallback to legacy booking endpoint if no schedule_id
+      response = await api.post("/bookings", payload);
+    }
 
     console.log("✅ Booking response:", response.data);
     console.log("=== BOOKING DETAILS ===");
     console.log("Full response:", JSON.stringify(response.data, null, 2));
-    console.log("Booking ID:", response.data.booking?.id);
-    console.log("Status:", response.data.booking?.status);
-    console.log("Is Accepted:", response.data.booking?.is_accepted);
-    console.log("Schedule Time:", response.data.booking?.schedule_time);
-    console.log("Date:", response.data.booking?.date);
-    console.log("Tutor ID:", response.data.booking?.tutor_id);
-    console.log("Student Name:", response.data.booking?.student_name);
-    console.log("Subject Name:", response.data.booking?.subject_name);
+    const booking = response.data?.booking || response.data?.data || response.data;
+    console.log("Booking ID:", booking?.id || booking?.request?.id || null);
+    console.log("Status:", booking?.status || null);
+    console.log("Is Accepted:", booking?.is_accepted || null);
+    console.log("Schedule Time:", booking?.schedule_time || null);
+    console.log("Date:", booking?.date || null);
+    console.log("Tutor ID:", booking?.tutor_id || null);
+    console.log("Student Name:", booking?.student_name || null);
+    console.log("Subject Name:", booking?.subject_name || null);
     console.log("======================");
 
     // Booking berhasil - siswa sudah bayar paket, tidak perlu payment lagi

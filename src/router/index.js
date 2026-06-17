@@ -247,6 +247,22 @@ const routes = [
     name: "DetailDataSiswa",
     component: DetailDataSiswa,
   },
+  {
+    path: "/admin/transaksi",
+    name: "AdminTransactions",
+    component: () => import('../views/admin/TransactionsList.vue'),
+  },
+  {
+    path: "/admin/transaksi/:id",
+    name: "AdminTransactionDetail",
+    component: () => import('../views/admin/TransactionDetail.vue'),
+  },
+  {
+    path: "/admin/laporan",
+    name: "AdminReports",
+    // Placeholder: implement laporan view later
+    component: () => import('../views/admin/DashboardAdmin.vue'),
+  },
 ];
 
 const router = createRouter({

@@ -1,14 +1,14 @@
 /**
  * Route Guards untuk proteksi halaman berdasarkan authentication dan role
  */
+import { useAuthStore } from '@/stores/auth.js';
 
 export function setupGuards(router) {
   router.beforeEach((to, from, next) => {
-    const token = localStorage.getItem("auth_token");
-    const userStr = localStorage.getItem("auth_user");
-    // Handle case where localStorage contains string "undefined"
-    const user =
-      userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
+    const auth = useAuthStore();
+    if (!auth.initialized) auth.loadFromStorage();
+    const token = auth.token;
+    const user = auth.user;
 
     console.log("Route guard:", {
       to: to.path,

@@ -254,7 +254,8 @@ import { useRouter } from "vue-router";
 import { ArrowLeft } from "lucide-vue-next";
 import Navbar from "@/components/layout/navbar.vue";
 import { getMe, updateProfile } from "@/services/authService.js";
-import axios from "axios";
+import api from "@/services/api";
+import { API_BASE } from "@/services/http";
 import { useModalStore } from "@/stores/modalStore"; // Import Global Modal
 
 const router = useRouter();
@@ -335,21 +336,11 @@ const isFormValid = computed(() => {
 const loadProfile = async () => {
   try {
     isLoading.value = true;
-    const token = localStorage.getItem("auth_token");
-
-    const response = await fetch("http://localhost:8000/api/student/profile", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) throw new Error("Gagal memuat profil");
-
-    const user = await response.json();
+    const resp = await api.get("/me");
+    const user = resp.data?.data || resp.data || resp;
 
     if (user.profile_photo_url) {
-      photoPreview.value = `http://localhost:8000/storage/${user.profile_photo_url}`;
+      photoPreview.value = `${API_BASE}/storage/${user.profile_photo_url}`;
     } else {
       photoPreview.value = user.photo || "https://picsum.photos/200/300";
     }
@@ -462,12 +453,9 @@ const handleSubmit = async () => {
     const token = localStorage.getItem("auth_token");
     const formData = new FormData();
 
-    formData.append("_method", "PATCH");
-
-    // Profile photo - hanya kirim jika ada file baru
-    // Backend akan keep existing photo jika tidak ada file di-upload
+    // Profile photo - hanya kirim jika ada file baru (field name sesuai OpenAPI)
     if (photoFile.value) {
-      formData.append("profile_photo_url", photoFile.value);
+      formData.append("profile_photo", photoFile.value);
     }
     // Jika tidak ada file baru, jangan kirim apa-apa (backend keep existing)
 
@@ -506,16 +494,15 @@ const handleSubmit = async () => {
     if (form.value.orangtua.nama) formData.append("parent", form.value.orangtua.nama);
     if (form.value.orangtua.telepon) formData.append("parent_telephone_number", form.value.orangtua.telepon);
 
-    const response = await axios.post("http://localhost:8000/api/student/profile", formData, {
+    const response = await api.patch("/me", formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
       },
     });
 
     // Update photo preview jika ada response photo_url
-    if (response.data.photo_url) {
-      photoPreview.value = `http://localhost:8000/storage/${response.data.photo_url}`;
+    if (response.data?.photo_url) {
+      photoPreview.value = `${API_BASE}/storage/${response.data.photo_url}`;
     }
 
     await modal.showAlert("Berhasil", "Profil berhasil diperbarui!", "success");

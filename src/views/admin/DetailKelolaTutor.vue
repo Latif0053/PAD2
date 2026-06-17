@@ -249,7 +249,7 @@ import { useRouter, useRoute } from "vue-router";
 import NavbarAdmin from "@/components/layout/navbar-admin.vue";
 import { ArrowLeft, History, FileText } from "lucide-vue-next";
 import {
-  getTutorDetail,
+  getAdminTutorDetail,
   getTutorSalaryHistory,
   submitSalaryInvoice,
 } from "@/services/adminDashboardService";
@@ -295,7 +295,7 @@ onMounted(async () => {
 const loadTutorDetail = async (tutorId) => {
   loading.value = true;
   try {
-    const data = await getTutorDetail(tutorId);
+    const data = await getAdminTutorDetail(tutorId);
     console.log("Tutor detail loaded:", data);
 
     // Map backend data to component structure

@@ -191,6 +191,8 @@ import { useRouter } from "vue-router";
 import { ArrowLeft } from "lucide-vue-next";
 import Navbar from "@/components/layout/navbar.vue";
 import { getMe, logout as apiLogout } from "@/services/authService.js";
+import api from "@/services/api";
+import { API_BASE } from "@/services/http";
 
 const router = useRouter();
 
@@ -259,19 +261,8 @@ const loadProfile = async () => {
     isLoading.value = true;
     errorMessage.value = "";
 
-    const token = localStorage.getItem("auth_token");
-    const response = await fetch("http://localhost:8000/api/student/profile", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Gagal memuat profil");
-    }
-
-    const res = await response.json();
+    const resp = await api.get("/student/profile");
+    const res = resp.data || resp;
     const user = res;
 
     // Mapping gender dari backend (male/female/pria/wanita) ke display
@@ -316,7 +307,7 @@ const loadProfile = async () => {
 
     student.value = {
       photoUrl: user.profile_photo_url
-        ? `http://localhost:8000/storage/${user.profile_photo_url}`
+        ? `${API_BASE}/storage/${user.profile_photo_url}`
         : user.photo || "",
       namaLengkap: user.name || "",
       email: user.email || "",

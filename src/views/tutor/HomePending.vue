@@ -514,7 +514,7 @@
             </div>
             <a
               v-if="tutor.files.cv"
-              :href="`http://localhost:8000/storage/${tutor.files.cv}`"
+              :href="`${API_BASE}/storage/${tutor.files.cv}`"
               target="_blank"
               class="text-sm text-primary hover:underline"
             >
@@ -557,7 +557,7 @@
             </div>
             <a
               v-if="tutor.files.ktp"
-              :href="`http://localhost:8000/storage/${tutor.files.ktp}`"
+              :href="`${API_BASE}/storage/${tutor.files.ktp}`"
               target="_blank"
               class="text-sm text-primary hover:underline"
             >
@@ -600,7 +600,7 @@
             </div>
             <a
               v-if="tutor.files.ijazah"
-              :href="`http://localhost:8000/storage/${tutor.files.ijazah}`"
+              :href="`${API_BASE}/storage/${tutor.files.ijazah}`"
               target="_blank"
               class="text-sm text-primary hover:underline"
             >
@@ -1076,7 +1076,8 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/services/api";
+import { API_BASE } from "@/services/http";
 import { Pencil, LogOut } from "lucide-vue-next";
 
 const router = useRouter();
@@ -1237,41 +1238,18 @@ async function fetchTutorProfile() {
     }
 
     // Ambil data user dan tutor dari API
-    const response = await axios.get("http://localhost:8000/api/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const userData = response.data.user || response.data;
-    console.log("User data:", userData);
-    console.log("Tutor data:", userData.tutor);
-
-    // Update tutor profile
-    tutor.value.name = userData.name || "Tutor";
-
+    const response = await api.get("/me");
     // Handle photo URL - jika path saja, tambahkan base URL
+    const userData = response.data.user || response.data;
     let photoUrl = userData.profile_photo_url || userData.photo || "";
     if (photoUrl && !photoUrl.startsWith("http")) {
       // Jika hanya path (misalnya: tutor/photos/xxx.jpg), buat full URL
-      photoUrl = `http://localhost:8000/storage/${photoUrl}`;
+      photoUrl = `${API_BASE}/storage/${photoUrl}`;
     }
-    tutor.value.photo = photoUrl;
-
-    tutor.value.role = "Tutor Privat Bimbel Lazuardy";
-    tutor.value.lastNameEdit = userData.last_name_edit || null;
-
-    // Jika ada data tutor
-    if (userData.tutor) {
-      const tutorData = userData.tutor;
-
-      // Status tutor
-      const status = tutorData.status?.value || tutorData.status || "verify";
-      tutor.value.status = status;
-
-      // Keahlian sebagai tag utama
-      if (tutorData.keahlian || tutorData.expertise) {
-        const keahlian = tutorData.keahlian || tutorData.expertise;
+    const tutorData = userData.tutor;
+            >
+              Lihat File
+            </a>
         tutor.value.tags = [keahlian];
         tutor.value.skills = [keahlian];
       }
@@ -1566,34 +1544,33 @@ async function handlePhotoChange(event) {
     }
 
     const formData = new FormData();
-    formData.append("photo", file);
+    formData.append("profile_photo", file);
 
-    const response = await axios.post(
-      "http://localhost:8000/api/tutor/upload-photo",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await api.patch("/me", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Upload photo response:", response.data);
 
     // Update photo URL - gunakan photo_url dari response
     if (response.data.photo_url) {
-      tutor.value.photo = response.data.photo_url;
+      // Ensure full URL
+      const photoUrl = response.data.photo_url.startsWith("http")
+        ? response.data.photo_url
+        : `${API_BASE}/storage/${response.data.photo_url}`;
+      tutor.value.photo = photoUrl;
 
       // Update localStorage juga
       const authUser = JSON.parse(localStorage.getItem("auth_user") || "{}");
-      authUser.profile_photo_url = response.data.photo_url;
+      authUser.profile_photo_url = photoUrl;
       localStorage.setItem("auth_user", JSON.stringify(authUser));
 
       alert("Foto profil berhasil diperbarui!");
     } else if (response.data.photo_path) {
       // Fallback: buat URL dari photo_path
-      const photoUrl = `http://localhost:8000/storage/${response.data.photo_path}`;
+      const photoUrl = `${API_BASE}/storage/${response.data.photo_path}`;
       tutor.value.photo = photoUrl;
 
       const authUser = JSON.parse(localStorage.getItem("auth_user") || "{}");
@@ -1731,15 +1708,7 @@ async function handleLogout() {
 
     if (token) {
       // Call logout endpoint
-      await axios.post(
-        "http://localhost:8000/api/logout",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await api.post("/logout", {});
     }
   } catch (error) {
     console.error("Logout error:", error);
@@ -1854,16 +1823,7 @@ async function saveEdit() {
     console.log("Sending update data:", updateData);
 
     // Send update to backend
-    const response = await axios.patch(
-      "http://localhost:8000/api/tutor/profile",
-      updateData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await api.patch("/me", updateData);
 
     console.log("Update response:", response.data);
 

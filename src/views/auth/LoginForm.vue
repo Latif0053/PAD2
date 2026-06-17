@@ -113,11 +113,14 @@ import { Eye, EyeClosed } from "lucide-vue-next";
 import hero from "@/assets/hero.png";
 import logo from "@/assets/logo.svg";
 import { loginRequest, fetchMe } from "@/services/auth.js";
+import { API_BASE } from "@/services/http";
 // 1. Import Modal Store
 import { useModalStore } from '@/stores/modalStore';
+import { useAuthStore } from '@/stores/auth.js';
 
-const router = useRouter();
-const modal = useModalStore(); // 2. Inisialisasi Modal
+  const router = useRouter();
+  const modal = useModalStore(); // 2. Inisialisasi Modal
+  const auth = useAuthStore();
 
 const email = ref("");
 const password = ref("");
@@ -190,15 +193,16 @@ const handleLogin = async () => {
 
     if (!token) throw new Error("Token tidak ditemukan");
 
-    localStorage.setItem("auth_token", token);
-    if (userRaw) localStorage.setItem("auth_user", JSON.stringify(userRaw));
+    // Save into central auth store (which persists to localStorage)
+    auth.setToken(token);
+    if (userRaw) auth.setUser(userRaw);
 
     // Ambil data detail profil
     let me = userRaw;
     try {
       const meResponse = await fetchMe();
       me = meResponse?.user || meResponse;
-      if (me) localStorage.setItem("auth_user", JSON.stringify(me));
+      if (me) auth.setUser(me);
     } catch (fetchError) {
       console.warn("Failed to fetch user profile:", fetchError);
     }
@@ -228,8 +232,8 @@ const handleLogin = async () => {
 const handleSiswa = () => router.push("/student/register");
 const handleTutor = () => router.push("/tutor/register");
 const handleForgotPassword = () => router.push("/forgot-password");
-const handleGoogleLogin = () => window.location.href = "http://localhost:8000/auth/google";
-const handleFacebookLogin = () => window.location.href = "http://localhost:8000/auth/facebook";
+const handleGoogleLogin = () => (window.location.href = `${API_BASE}/auth/google`);
+const handleFacebookLogin = () => (window.location.href = `${API_BASE}/auth/facebook`);
 </script>
 
 <style scoped>

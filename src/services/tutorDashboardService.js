@@ -1,9 +1,91 @@
 import { api } from "./http";
 
+const isDummyTutor = () => localStorage.getItem("auth_token") === "dummy-token-3";
+
+const dummyTutorSummary = {
+  total_students: 5,
+  completed_sessions_this_month: 18,
+  active_schedules: 7,
+  submitted_reports: 14,
+};
+
+const dummyTutorDashboard = {
+  taken_schedules: [
+    {
+      id: 201,
+      student_user_id: 21,
+      student_name: "Alya Ramadhani",
+      subject_name: "Matematika",
+      date: "2026-06-18",
+      schedule_time: "16:00:00",
+      status: "active",
+      is_accepted: false,
+    },
+    {
+      id: 202,
+      student_user_id: 22,
+      student_name: "Bima Santoso",
+      subject_name: "Matematika",
+      date: "2026-06-19",
+      schedule_time: "19:00:00",
+      status: "active",
+      is_accepted: false,
+    },
+    {
+      id: 203,
+      student_user_id: 23,
+      student_name: "Nara Wijaya",
+      subject_name: "Matematika",
+      date: "2026-06-17",
+      schedule_time: "10:00:00",
+      status: "active",
+      is_accepted: true,
+    },
+    {
+      id: 204,
+      student_user_id: 24,
+      student_name: "Dimas Arkan",
+      subject_name: "Fisika",
+      date: "2026-06-17",
+      schedule_time: "14:00:00",
+      status: "active",
+      is_accepted: true,
+    },
+  ],
+  students: [
+    {
+      student_user_id: 21,
+      student_name: "Alya Ramadhani",
+      subject_name: "Matematika",
+      remaining_session: 6,
+      total_session: 16,
+      status: "Aktif",
+    },
+    {
+      student_user_id: 22,
+      student_name: "Bima Santoso",
+      subject_name: "Matematika",
+      remaining_session: 5,
+      total_session: 12,
+      status: "Aktif",
+    },
+    {
+      student_user_id: 23,
+      student_name: "Nara Wijaya",
+      subject_name: "Matematika",
+      remaining_session: 4,
+      total_session: 8,
+      status: "Aktif",
+    },
+  ],
+};
+
 /**
  * Get tutor dashboard summary (untuk statistik widget)
  */
 export const getTutorSummary = async () => {
+  if (isDummyTutor()) return dummyTutorSummary;
+
   try {
     const response = await api("/api/dashboard/tutor/summary");
     console.log("API Response for tutor summary:", response);
@@ -18,6 +100,8 @@ export const getTutorSummary = async () => {
  * Get full tutor dashboard data
  */
 export const getTutorDashboard = async () => {
+  if (isDummyTutor()) return dummyTutorDashboard;
+
   try {
     const response = await api("/api/dashboard/tutor");
     console.log("🔍 API Response for tutor dashboard:", response);
@@ -54,6 +138,13 @@ export const getTutorDashboard = async () => {
  * Accept learning request
  */
 export const acceptLearningRequest = async (requestId) => {
+  if (isDummyTutor()) {
+    return {
+      status: "success",
+      message: `Ajuan belajar dummy ${requestId} diterima`,
+    };
+  }
+
   try {
     const response = await api(`/api/tutor/requests/${requestId}/accept`, {
       method: "POST",
@@ -70,6 +161,13 @@ export const acceptLearningRequest = async (requestId) => {
  * Reject learning request
  */
 export const rejectLearningRequest = async (requestId) => {
+  if (isDummyTutor()) {
+    return {
+      status: "success",
+      message: `Ajuan belajar dummy ${requestId} ditolak`,
+    };
+  }
+
   try {
     const response = await api(`/api/tutor/requests/${requestId}/reject`, {
       method: "POST",
@@ -86,6 +184,14 @@ export const rejectLearningRequest = async (requestId) => {
  * Get student detail by taken_schedule ID
  */
 export const getStudentDetail = async (takenScheduleId) => {
+  if (isDummyTutor()) {
+    return (
+      dummyTutorDashboard.students.find(
+        (student) => Number(student.student_user_id) === Number(takenScheduleId)
+      ) || {}
+    );
+  }
+
   try {
     const response = await api(`/api/tutor/students/${takenScheduleId}`);
     console.log("Student detail response:", response);
@@ -100,6 +206,20 @@ export const getStudentDetail = async (takenScheduleId) => {
  * Get student attendance data
  */
 export const getStudentAttendance = async (studentUserId) => {
+  if (isDummyTutor()) {
+    return {
+      student_user_id: studentUserId,
+      present: 8,
+      absent: 1,
+      total_sessions: 9,
+      history: [
+        { date: "2026-06-03", status: "Hadir" },
+        { date: "2026-06-10", status: "Hadir" },
+        { date: "2026-06-15", status: "Tidak Hadir" },
+      ],
+    };
+  }
+
   try {
     const response = await api(`/api/tutor/attendance/${studentUserId}`);
     console.log("Student attendance response:", response);
@@ -114,6 +234,13 @@ export const getStudentAttendance = async (studentUserId) => {
  * Save session report
  */
 export const saveSessionReport = async (formData) => {
+  if (isDummyTutor()) {
+    return {
+      status: "success",
+      message: "Laporan sesi dummy tersimpan",
+    };
+  }
+
   try {
     const response = await api("/api/tutor/session-report", {
       method: "POST",
@@ -136,6 +263,14 @@ export const sendMeetingLink = async (
   scheduleId,
   meetingLink
 ) => {
+  if (isDummyTutor()) {
+    return {
+      status: "success",
+      message: "Link meeting dummy terkirim",
+      data: { studentUserId, scheduleId, meetingLink },
+    };
+  }
+
   try {
     const response = await api(`/api/tutor/meeting-link/${studentUserId}`, {
       method: "POST",

@@ -3,6 +3,9 @@
     <NavbarAdmin />
 
     <div class="max-w-7xl mx-auto px-4 py-8">
+      <div class="flex gap-6">
+        <SidebarAdmin />
+        <div class="flex-1">
       <!-- Back Button -->
       <button @click="goToDashboard" class="btn-back">
         <ArrowLeft :size="20" />
@@ -95,6 +98,8 @@
       <div v-if="!loading && tutors.length === 0" class="empty-state">
         <p>Tidak ada tutor yang ditemukan</p>
       </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -103,6 +108,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import NavbarAdmin from "@/components/layout/navbar-admin.vue";
+import SidebarAdmin from "@/components/layout/sidebar-admin.vue";
 import {
   Search,
   Filter,

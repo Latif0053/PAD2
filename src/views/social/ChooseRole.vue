@@ -62,7 +62,7 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { GraduationCap } from "lucide-vue-next";
 import { Users } from "lucide-vue-next";
-import axios from "axios";
+import api from "@/services/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -104,8 +104,8 @@ async function handleSubmit() {
     console.log("Setting role:", selectedRole.value);
 
     // Kirim role ke backend
-    const response = await axios.post(
-      "http://localhost:8000/api/auth/social/set-role",
+    const response = await api.post(
+      "/auth/social/set-role",
       {
         role: selectedRole.value,
       },

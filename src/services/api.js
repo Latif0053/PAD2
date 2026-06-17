@@ -1,7 +1,11 @@
 import axios from "axios";
+import { API_BASE as HTTP_API_BASE } from "./http.js";
+
+const BASE_HOST = (import.meta.env.VITE_API_BASE_URL || HTTP_API_BASE || "http://localhost:8000").replace(/\/$/, "");
+const API_ROOT = `${BASE_HOST}/api`;
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: API_ROOT,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -43,3 +47,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+export { API_ROOT as API_URL, BASE_HOST as API_HOST };

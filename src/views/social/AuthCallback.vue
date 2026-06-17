@@ -27,7 +27,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/services/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -69,12 +69,7 @@ onMounted(async () => {
       localStorage.setItem("auth_token", token);
 
       // Fetch user profile
-      const response = await axios.get("http://localhost:8000/api/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await api.get("/me");
       const user = response.data.user || response.data;
 
       console.log("User profile:", user);

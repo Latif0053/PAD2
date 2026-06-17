@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL = "http://localhost:8000/api";
+import api from "./api";
 
 /**
  * Get all notifications (paginated)
@@ -9,14 +7,7 @@ const API_BASE_URL = "http://localhost:8000/api";
  */
 export const getNotifications = async (page = 1) => {
   try {
-    const token = localStorage.getItem("auth_token");
-    const response = await axios.get(`${API_BASE_URL}/notifications`, {
-      params: { page },
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    });
+    const response = await api.get(`/notifications`, { params: { page } });
     return response.data;
   } catch (error) {
     console.error("Error fetching notifications:", error);
@@ -30,16 +21,7 @@ export const getNotifications = async (page = 1) => {
  */
 export const getUnreadCount = async () => {
   try {
-    const token = localStorage.getItem("auth_token");
-    const response = await axios.get(
-      `${API_BASE_URL}/notifications/unread-count`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      }
-    );
+    const response = await api.get(`/notifications/unread-count`);
     return response.data;
   } catch (error) {
     console.error("Error fetching unread count:", error);
@@ -54,17 +36,7 @@ export const getUnreadCount = async () => {
  */
 export const markAsRead = async (id) => {
   try {
-    const token = localStorage.getItem("auth_token");
-    const response = await axios.patch(
-      `${API_BASE_URL}/notifications/${id}/read`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      }
-    );
+    const response = await api.patch(`/notifications/${id}/read`);
     return response.data;
   } catch (error) {
     console.error("Error marking notification as read:", error);
@@ -78,17 +50,7 @@ export const markAsRead = async (id) => {
  */
 export const markAllAsRead = async () => {
   try {
-    const token = localStorage.getItem("auth_token");
-    const response = await axios.patch(
-      `${API_BASE_URL}/notifications/read-all`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      }
-    );
+    const response = await api.patch(`/notifications/read-all`);
     return response.data;
   } catch (error) {
     console.error("Error marking all as read:", error);
@@ -103,13 +65,7 @@ export const markAllAsRead = async () => {
  */
 export const deleteNotification = async (id) => {
   try {
-    const token = localStorage.getItem("auth_token");
-    const response = await axios.delete(`${API_BASE_URL}/notifications/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    });
+    const response = await api.delete(`/notifications/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting notification:", error);
@@ -123,16 +79,7 @@ export const deleteNotification = async (id) => {
  */
 export const deleteAllRead = async () => {
   try {
-    const token = localStorage.getItem("auth_token");
-    const response = await axios.delete(
-      `${API_BASE_URL}/notifications/read-all`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      }
-    );
+    const response = await api.delete(`/notifications/read-all`);
     return response.data;
   } catch (error) {
     console.error("Error deleting all read notifications:", error);

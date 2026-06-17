@@ -11,7 +11,7 @@ import api from "./api";
  */
 export async function getPublicTutors(params = {}) {
   try {
-    const response = await api.get("/find-tutor", { params });
+    const response = await api.get("/tutor/find", { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching public tutors:", error);
@@ -33,7 +33,7 @@ export async function getPublicTutors(params = {}) {
  */
 export async function searchTutors(params = {}) {
   try {
-    const response = await api.get("/find-tutor", { params });
+    const response = await api.get("/tutor/find", { params });
     return response.data;
   } catch (error) {
     console.error("Error searching tutors:", error);
@@ -48,7 +48,7 @@ export async function searchTutors(params = {}) {
  */
 export async function getTutorDetail(tutorId) {
   try {
-    const response = await api.get(`/tutor-profile/${tutorId}`);
+    const response = await api.get(`/tutor/profile/${tutorId}`);
     return response.data.data;
   } catch (error) {
     console.error("Error fetching tutor detail:", error);
@@ -65,8 +65,8 @@ export async function getTutorDetail(tutorId) {
 export async function getAvailableSlots(tutorId, date = null) {
   try {
     const url = date
-      ? `/tutor-profile/${tutorId}/available-slots?date=${date}`
-      : `/tutor-profile/${tutorId}/available-slots`;
+      ? `/tutor/${tutorId}/available-slots?date=${date}`
+      : `/tutor/${tutorId}/available-slots`;
     const response = await api.get(url);
     return response.data;
   } catch (error) {

@@ -78,6 +78,7 @@
                   <div class="lz-tooltip-info">
                     <p class="lz-tooltip-name">{{ student.name }}</p>
                     <p class="lz-tooltip-email">{{ student.email }}</p>
+                    <RouterLink v-if="auth.isAdmin" to="/admin/dashboard" class="lz-admin-link">Dashboard Admin</RouterLink>
                   </div>
                 </div>
               </div>
@@ -109,13 +110,14 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter, useRoute, RouterLink } from "vue-router";
 import { Bell } from "lucide-vue-next";
 import { CircleUser } from "lucide-vue-next";
 import SidebarLeft from "./sidebar-left.vue";
 import SidebarRight from "./sidebar-right.vue";
 import { getMe } from "@/services/authService";
 import { getUnreadCount } from "@/services/notificationService";
+import { API_BASE } from "@/services/http";
 
 const router = useRouter();
 const route = useRoute();
@@ -176,11 +178,11 @@ const fetchProfileData = async () => {
 
         let photoUrl = "default";
         if (user.profile_photo_url) {
-          photoUrl = `http://localhost:8000/storage/${user.profile_photo_url}`;
+          photoUrl = `${API_BASE}/storage/${user.profile_photo_url}`;
         } else if (user.photo && user.photo !== "default") {
           photoUrl = user.photo.startsWith("http")
             ? user.photo
-            : `http://localhost:8000/storage/${user.photo}`;
+            : `${API_BASE}/storage/${user.photo}`;
         }
 
         student.value = {
@@ -210,11 +212,11 @@ const fetchProfileData = async () => {
 
     let photoUrl = "default";
     if (user.profile_photo_url) {
-      photoUrl = `http://localhost:8000/storage/${user.profile_photo_url}`;
+      photoUrl = `${API_BASE}/storage/${user.profile_photo_url}`;
     } else if (user.photo && user.photo !== "default") {
       photoUrl = user.photo.startsWith("http")
         ? user.photo
-        : `http://localhost:8000/storage/${user.photo}`;
+        : `${API_BASE}/storage/${user.photo}`;
     }
 
     student.value = {
@@ -246,6 +248,10 @@ const fetchProfileData = async () => {
     isLoadingProfile.value = false;
   }
 };
+
+// Auth store (for admin quick link)
+import { useAuthStore } from '@/stores/auth.js';
+const auth = useAuthStore();
 
 const fetchNotificationCount = async () => {
   if (isLoadingNotifications.value) return;

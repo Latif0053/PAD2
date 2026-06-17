@@ -183,6 +183,7 @@ import {
   getStudentDashboard,
   getRecommendedTutors,
 } from "@/services/studentDashboardService";
+import { API_BASE } from "@/services/http";
 
 const user = ref(null);
 const isLoadingDashboard = ref(false);
@@ -305,7 +306,7 @@ async function loadRecommendedTutors() {
 
       let photoUrl;
       if (t.tutor_photo && t.tutor_photo !== "default" && t.tutor_photo !== null) {
-        photoUrl = `http://localhost:8000/storage/${t.tutor_photo}`;
+        photoUrl = `${API_BASE}/storage/${t.tutor_photo}`;
       } else {
         photoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName)}&size=200&background=0C447C&color=fff&bold=true`;
       }

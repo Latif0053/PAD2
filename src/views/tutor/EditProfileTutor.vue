@@ -697,6 +697,7 @@ import {
   updateTutorProfile,
 } from "@/services/tutorProfileService";
 import NavbarTutor from "@/components/layout/navbar-tutor.vue";
+import { API_BASE } from "@/services/http";
 
 const router = useRouter();
 
@@ -968,14 +969,14 @@ const loadProfile = async () => {
         photoPreview.value = data.photo;
       } else {
         // Jika relative path, tambahkan base URL
-        photoPreview.value = `http://localhost:8000${
+        photoPreview.value = `${API_BASE}${
           data.photo.startsWith("/") ? data.photo : "/storage/" + data.photo
         }`;
       }
     } else if (data.profile_photo_url) {
       photoPreview.value = data.profile_photo_url.startsWith("http")
         ? data.profile_photo_url
-        : `http://localhost:8000${
+        : `${API_BASE}${
             data.profile_photo_url.startsWith("/")
               ? data.profile_photo_url
               : "/storage/" + data.profile_photo_url
