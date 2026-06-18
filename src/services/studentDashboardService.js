@@ -87,20 +87,25 @@ const dummyRecommendedTutors = [
 // Summary dashboard student
 export async function getStudentSummary() {
   if (isDummyStudent()) {
-    return {
-      status: "success",
-      data: {
-        active_packages: 1,
-        upcoming_schedules: dummyStudentDashboard.upcoming_schedules.length,
+  return {
+        active_packages: dummyStudentDashboard.packages.length, 
         completed_sessions: 10,
-      },
-    };
+        remaining_sessions: 6,
+        upcoming_schedules: dummyStudentDashboard.upcoming_schedules.length,
+        next_schedule: dummyStudentDashboard.upcoming_schedules[0] || null
+      };
   }
 
   // backend: GET /api/dashboard/student/summary
   const res = await api("/api/dashboard/student/summary");
-  return res; // biasanya { status, data: {...} }
-}
+  return {
+      active_packages: res.session?.total_sessions || 0,
+      completed_sessions: res.session?.used_sessions || 0,
+      remaining_sessions: res.session?.remaining_sessions || 0,
+      upcoming_schedules: res.summary?.upcoming_count || 0,
+      next_schedule: res.summary?.next_schedule || null
+    };
+} 
 
 export async function getStudentDashboard() {
   if (isDummyStudent()) {

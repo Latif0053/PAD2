@@ -1,5 +1,5 @@
 export const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  import.meta.env.VITE_API_BASE_URL || "https://psait.tail78b2d9.ts.net";
 
 // Cache untuk request yang sudah berhasil
 const requestCache = new Map();

@@ -249,43 +249,45 @@ function formatJadwal(dateStr, timeStr) {
 async function loadDashboard() {
   try {
     isLoadingDashboard.value = true;
+    
+    // Load User
     const meRes = await getMe();
-    user.value = meRes.user;
+    user.value = meRes.user || meRes; // Antisipasi kalau format response beda
 
+    // Load Dashboard Data
     const dashRes = await getStudentDashboard();
-    const data = dashRes.data || dashRes;
+    const data = dashRes.data || dashRes; 
 
-    const packages = data.packages || [];
-    if (packages.length > 0) {
-      const pkg = packages[0];
-      const totalPertemuan = pkg.package_session ?? 0;
-      const sisaPertemuan = pkg.remaining_session ?? totalPertemuan;
-      const pertemuanSelesai = totalPertemuan - sisaPertemuan;
+    // 1. MAPPING SESI (Menggunakan object 'session' dari backend baru, bukan 'packages')
+    if (data.session) {
+      const totalPertemuan = data.session.total_sessions ?? 0;
+      const sisaPertemuan = data.session.remaining_sessions ?? 0;
+      const pertemuanSelesai = data.session.used_sessions ?? 0;
 
       paketAktif.value = {
-        nama: pkg.package_name || "Paket Belajar",
+        nama: "Paket Belajar Aktif", // Fallback karena backend tidak mengirim nama paket
         totalSesi: totalPertemuan,
         sesiTerpakai: pertemuanSelesai,
-        berlakuSampai: pkg.end_date || null,
       };
 
-      progress.value.program = pkg.package_name || "Paket Belajar";
-      progress.value.mapel = pkg.subject_name || "Mapel";
-      progress.value.tutor = pkg.tutor_name || "-";
+      progress.value.program = "Program Pembelajaran";
       progress.value.totalSesi = totalPertemuan;
       progress.value.sesiSelesai = pertemuanSelesai;
     }
 
-    const upcoming = data.upcoming_schedules || [];
-    jadwalList.value = upcoming.map((js) => ({
-      matkul: js.subject_name || "-",
-      waktu: formatJadwal(js.date, js.schedule_time),
-    }));
+    // 2. MAPPING JADWAL
+  const nextSchedule = data.summary?.next_schedule;
 
-    if (upcoming.length > 0) {
-      const first = upcoming[0];
-      progress.value.jadwalBerikut = formatJadwal(first.date, first.schedule_time);
-    }
+  jadwalList.value = nextSchedule ? [{
+    matkul: nextSchedule.subject?.name || "-",
+    waktu: formatJadwal(nextSchedule.date, nextSchedule.start_time),
+  }] : [];
+
+  if (nextSchedule) {
+    progress.value.jadwalBerikut = formatJadwal(nextSchedule.date, nextSchedule.start_time);
+    progress.value.mapel = nextSchedule.subject?.name || "Progress Belajar";
+  }
+
   } catch (err) {
     console.error("Gagal load dashboard:", err);
   } finally {
@@ -297,27 +299,25 @@ async function loadRecommendedTutors() {
   try {
     isLoadingTutors.value = true;
     const recRes = await getRecommendedTutors(1);
-    const recData = recRes.data || recRes;
+
+    // API kirim { data: { tutors: [...] } }, bukan { data: [...] }
+    const recData = recRes.data?.tutors ?? recRes.data ?? [];
 
     console.log("Raw tutor data from backend:", recData);
 
-    tutors.value = (recData || []).map((t) => {
-      const fallbackName = t.tutor_name || t.name || "Tutor";
+    tutors.value = (Array.isArray(recData) ? recData : []).map((t) => {
+      // API asli pakai t.name dan t.profile_photo_path (bukan tutor_name/tutor_photo)
+      const fallbackName = t.name || "Tutor";
 
-      let photoUrl;
-      if (t.tutor_photo && t.tutor_photo !== "default" && t.tutor_photo !== null) {
-        photoUrl = `${API_BASE}/storage/${t.tutor_photo}`;
-      } else {
-        photoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName)}&size=200&background=0C447C&color=fff&bold=true`;
-      }
-
-      console.log(`Tutor ${fallbackName} photo:`, t.tutor_photo, "=>", photoUrl);
+      const photoUrl = (t.profile_photo_path && t.profile_photo_path !== "default")
+        ? `${API_BASE}/storage/${t.profile_photo_path}`
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName)}&size=200&background=0C447C&color=fff&bold=true`;
 
       return {
-        id: t.tutor_id || t.id,
+        id: t.id,
         name: fallbackName,
-        keahlian: t.keahlian || (t.subjects || []).map((s) => s.subject_name).join(", ") || "Umum",
-        subject: (t.subjects || []).map((s) => s.subject_name).join(", "),
+        keahlian: t.keahlian || "-",
+        subject: "",
         rating: t.rating ?? 0,
         totalReviews: t.total_reviews ?? 0,
         totalStudents: t.total_students ?? 0,
