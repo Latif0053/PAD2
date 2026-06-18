@@ -7,7 +7,7 @@ import { api } from "./http";
 export const getTutorDetail = async (tutorId) => {
   try {
     console.log("Fetching tutor detail for ID:", tutorId);
-    const url = `/api/tutor-profile/${tutorId}`;
+    const url = `/api/tutor/profile/${tutorId}`;
     console.log("Request URL:", url);
 
     const response = await api(url);
